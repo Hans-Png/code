@@ -1,0 +1,20 @@
+{
+  "rules": [
+    {
+      "name": "visa",
+      "localizedName": {
+        "en": "Visa",
+        "zh": "簽證"
+      },
+      "type": "visa"
+    },
+    {
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "zh": ""
+      },
+      "type": "distance"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "en": {
+    "language": "English",
+    "title": "Traveler Flight Itinerary Recommendation System",
+    "search": "Search",
+    "travelerInfo": {
+      "title": "Traveler Information",
+      "initMsg": "Before using this system, please click the \"Traveler Information\" button above to fill in your basic information to ensure the normal operation of this system.",
+      "document": {
+        "title": "Travel Documents Information",
+        "issurance": "Please select the country/region of issuance of the travel document.",
+        "add": "Add New Travel Document",
+        "description": "Please list the travel documents that the traveler wishes to use during the journey. You can add multiple records.",
+        "warning": "You must fill in at least one record of travel document information."
+      },
+      "visa": {
+        "title": "Visa/Entry Permit Information"
+      },
+      "save": "Save Change",
+      "cancel": "Cancel"
+    },
+    "searchBox": {
+      "title": "Search Box",
+      "description": "Please enter the departure and destination cities, and the system will recommend the most suitable flight itinerary for you.",
+      "placeholder": {
+        "departure": "Departure IATA Code or Airport Name",
+        "destination": "Destination IATA Code or Airport Name"
+      },
+      "invalidInput": "Please enter the correct IATA code or airport name and select the airport you need from the option list.",
+      "addNew": "Add New Itinerary",
+      "delete": "Delete Itinerary",
+      "reset": "Reset"
+    }
+  },
+  "zh": {
+    "language": "中文",
+    "title": "旅客飛航路線推薦系統",
+    "search": "查詢",
+    "travelerInfo": {
+      "title": "旅客資訊",
+      "initMsg": "爲了保障本系統的正常運作，請於使用本系統之前，點擊上方「旅客資訊」按鈕塡寫閣下的基本資料。",
+      "document": {
+        "title": "旅行證件資訊",
+        "issurance": "請選擇旅行證件簽發國家/地區",
+        "add": "新增旅行證件",
+        "description": "請列出旅客希望於旅途中所使用的旅行證件，閣下亦可以加入多筆資料。",
+        "warning": "閣下必須塡寫至少一筆旅行證件資料。"
+      },
+      "save": "保存更改",
+      "cancel": "取消"
+    },
+    "searchBox": {
+      "title": "查詢框",
+      "description": "請輸入出發地及目的地城市，系統將會爲閣下推薦最適合的飛航路線。",
+      "placeholder": {
+        "departure": "出發地IATA代碼或機場名稱（僅支援英語）",
+        "destination": "目的地IATA代碼或機場名稱（僅支援英語）"
+      },
+      "invalidInput": "請輸入正確的IATA代碼或機場名稱，並從選項列表中選取合適的機場。",
+      "addNew": "添加行程",
+      "delete": "刪除行程",
+      "reset": "重置行程"
+    }
+  }
+}

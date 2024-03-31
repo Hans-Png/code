@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "ChiuKong Gothic CL";
+  src: url("../public/ChiuKongGothicVFCL.woff2") format('woff2');
+}
+
+body {
+  font-family: Arial, Helvetica, "ChiuKong Gothic CL", sans-serif!important;
+}

@@ -1,0 +1,45 @@
+{
+  "name": "visa-itinerary",
+  "version": "1.0.0",
+  "description": "",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:view\"",
+    "dev:server": "cd apps/server && npm run dev",
+    "dev:view": "cd apps/view && npm run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Png Sing-Han",
+  "license": "MIT",
+  "dependencies": {
+    "common-errors": "^1.2.0",
+    "consola": "^3.2.3",
+    "dotenv": "^16.3.1",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "@types/common-errors": "^1.0.5",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "concurrently": "^8.2.2",
+    "dprint": "^0.45.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.2"
+  },
+  "overrides": {
+    "react-scripts": {
+      "typescript": "^5"
+    }
+  }
+}
