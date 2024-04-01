@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  ButtonGroup,
-  Col,
-  Container,
-  Dropdown,
-  Form,
-  InputGroup,
-  Row,
-} from "react-bootstrap";
+import { Button, Col, Container, Dropdown, Form, InputGroup, Row } from "react-bootstrap";
 import { GeoAltFill, ThreeDotsVertical, XCircle } from "react-bootstrap-icons";
 import { useI18n } from "react-simple-i18n";
 import getFlightRouteResult from "../../api/flightroute.api";
@@ -162,11 +153,11 @@ const SearchBox = () => {
         <Form noValidate>
           {itineraries.map((itinerary, index) => (
             <InputGroup key={index}>
-              <>
+              <React.Fragment>
                 {index !== itineraries.length - 1
                   ? <ThreeDotsVertical className="d-flex align-self-center me-2" />
                   : <GeoAltFill className="d-flex align-self-center me-2" />}
-              </>
+              </React.Fragment>
               <Form.Control
                 className="mt-1 md-1"
                 size="sm"
@@ -195,7 +186,7 @@ const SearchBox = () => {
                   <Container className="p-0">
                     <Dropdown show={Boolean(itinerary.input)} autoClose="inside">
                       <Dropdown.Menu className="position-fixed" align="start">
-                        {searchAirports(itinerary.input).map((airport) => (
+                        {filteredAirports.map((airport) => (
                           <Dropdown.Item
                             key={airport.iata}
                             onClick={() => handleItinerariesChange(index, { airport })}
@@ -240,7 +231,7 @@ const SearchBox = () => {
             variant="primary"
             className="ms-1"
             onClick={async () => await searchRoutes()}
-            disabled={!isAllowToSearch || !isLoading}
+            disabled={!isAllowToSearch && !isLoading}
           >
             {t("search")}
           </Button>

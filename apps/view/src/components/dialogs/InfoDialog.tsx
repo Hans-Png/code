@@ -1,13 +1,28 @@
-import React, { useState } from "react";
-import { Button, Form, InputGroup, Modal, Row } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Col,
+  Container,
+  Dropdown,
+  FloatingLabel,
+  Form,
+  InputGroup,
+  Modal,
+  Row,
+} from "react-bootstrap";
+import { Typeahead } from "react-bootstrap-typeahead";
 import { useI18n } from "react-simple-i18n";
-import { useAppStore } from "../../hooks/AppContext";
-import type { TravelDocInfo } from "../../types/flightroute";
+import { AppActionTypes, useAppStore } from "../../hooks/AppContext";
+import type { TravelDocInfo, VisaInfo } from "../../types/flightroute";
 
 enum VisaType {
   TOURIST = "TOURIST",
   RESIDENCE = "RESIDENCE",
   PR = "PR",
+}
+
+enum TravelDocType {
+  ORDINARY = "ORDINARY",
 }
 
 const InfoDialog = (
@@ -16,24 +31,123 @@ const InfoDialog = (
   const { t, i18n } = useI18n();
   const { state, dispatch } = useAppStore();
   const { countries, travellerInfo } = state;
+  const { travelDocs, visaInfos } = travellerInfo;
 
   // Local State
-  const [travelDocsInfo, setTravelDocsInfo] = useState<TravelDocInfo[]>([{
-    nationality: "XXX",
-    type: "Ordinary",
-  }]);
+  const [travelDocsInfo, setTravelDocsInfo] = useState<
+    Array<TravelDocInfo & { input: string; isDropdownToggled: boolean }>
+  >(
+    [],
+  );
+  const [heldVisaInfos, setHeldVisaInfos] = useState<
+    Array<VisaInfo & { input: string; isDropdownToggled: boolean }>
+  >([]);
   const [isSubmittable, setIsSubmittable] = useState(false);
+
+  // Hooks
+  useEffect(() => {
+    let savedTravelDocs: Array<TravelDocInfo & { input: string; isDropdownToggled: boolean }> = [];
+    let savedVisaInfos: Array<VisaInfo & { input: string; isDropdownToggled: boolean }> = [];
+    if (show) {
+      savedTravelDocs = travelDocs.map((info) => ({
+        ...info,
+        input: "",
+        isDropdownToggled: false,
+      }));
+      savedVisaInfos = visaInfos.map((info) => ({ ...info, input: "", isDropdownToggled: false }));
+    }
+    setTravelDocsInfo(savedTravelDocs);
+    setHeldVisaInfos(savedVisaInfos);
+  }, [show, travelDocs, visaInfos]);
+
+  useEffect(() => {
+    const isTravelDocsValid = travelDocsInfo.every((info) => info.nationality !== "XXX");
+    const isVisaInfosValid = heldVisaInfos.every((info) => info.country !== "XXX");
+
+    if (isTravelDocsValid && isVisaInfosValid) {
+      setIsSubmittable(true);
+    } else {
+      setIsSubmittable(false);
+    }
+  }, [travelDocsInfo, heldVisaInfos]);
+
+  // Dialog Methods //
 
   const onCloseDialog = () => {
     toggleInfoDialog(false);
+    setTravelDocsInfo([]);
+    setHeldVisaInfos([]);
   };
 
+  const onSaveDialog = () => {
+    const newTravelDocsInfo = travelDocsInfo.map((info) => {
+      const { input: _input, isDropdownToggled: _isDropdownToggled, ...travelDoc } = info;
+      return travelDoc;
+    }).filter((info) => info.nationality !== "XXX");
+    const newVisaInfos = heldVisaInfos.map((info) => {
+      const { input: _input, isDropdownToggled: _isDropdownToggled, ...visaInfo } = info;
+      return visaInfo;
+    }).filter((info) => info.country !== "XXX");
+
+    dispatch({ type: AppActionTypes.SET_TRAVEL_DOCS, payload: newTravelDocsInfo });
+    dispatch({ type: AppActionTypes.SET_VISA_INFOS, payload: newVisaInfos });
+    toggleInfoDialog(false);
+  };
+
+  // Dropdown Methods //
+
+  const filteredCountries = (input: string) => {
+    // Inputs
+    const inputUpper = input.toUpperCase();
+    const lang = i18n.getLang();
+
+    // Filtered Result
+    const result = countries.filter((country) => {
+      const { code, altCode, name } = country;
+      const codeUpper = code.toUpperCase();
+      const altCodeUpper = altCode.toUpperCase();
+      const engNameUpper = name["en"].toUpperCase();
+      const localNameUpper = name[lang].toUpperCase();
+
+      return (codeUpper.includes(inputUpper)
+        || altCodeUpper.includes(inputUpper)
+        || engNameUpper.includes(inputUpper)
+        || localNameUpper.includes(inputUpper));
+    });
+
+    return result;
+  };
+
+  const getCountryName = (code: string) => {
+    const lang = i18n.getLang();
+    const country = countries.find((country) => country.code === code);
+    return country ? country.name[lang] : "";
+  };
+
+  // Dropdowns methods
+
+  const onHandleDropdown = (index: number) => {
+    const newTravelDocsInfo = [...travelDocsInfo];
+    newTravelDocsInfo[index].isDropdownToggled = !newTravelDocsInfo[index].isDropdownToggled;
+  };
+
+  // Travel Docs methods
+
   const addTravelDocInfo = () => {
-    const newInfo: TravelDocInfo = {
+    // XXX states for unspecified nationality, but only consider country of issurance not nationality here
+    const newInfo = {
       nationality: "XXX",
-      type: "Ordinary",
+      type: "Oridinary",
+      input: "",
+      isDropdownToggled: false,
     };
-    setTravelDocsInfo((value) => [...value, newInfo]);
+    setTravelDocsInfo([...travelDocsInfo, newInfo]);
+  };
+
+  const updateTravelDoc = (index: number, key: "nationality" | "type" | "input", value: string) => {
+    const newTravelDocsInfo = [...travelDocsInfo];
+    newTravelDocsInfo[index][key] = value;
+    setTravelDocsInfo(newTravelDocsInfo);
   };
 
   return (
@@ -50,32 +164,71 @@ const InfoDialog = (
       <Modal.Body>
         <Row>
           <Form noValidate>
-            <Form.Label>{t("travelerInfo.document.title")}</Form.Label>
-            <InputGroup>
+            <Row>
               <Form.Label>{t("travelerInfo.document.title")}</Form.Label>
-            </InputGroup>
+            </Row>
+            <Row>
+              <Form.Text>{t("travelerInfo.document.description")}</Form.Text>
+            </Row>
+            <Row>
+              {travelDocsInfo.map((info, index) => (
+                <InputGroup key={index}>
+                  <Col>
+                    <Form.Label>{t("travelerInfo.document.issurance.title")}</Form.Label>
+                    <Dropdown>
+                      <Dropdown.Toggle size="sm">
+                        {info.nationality !== "XXX" ? getCountryName(info.nationality) : ""}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu
+                        className="p-2"
+                        style={{
+                          maxHeight: "250px",
+                          overflowY: "scroll",
+                        }}
+                      >
+                        <Form.Control
+                          onChange={(e) => updateTravelDoc(index, "input", e.target.value)}
+                          value={info.input}
+                          placeholder={t("travelerInfo.document.issurance.placeholder")}
+                          autoFocus
+                        />
+                        {filteredCountries(info.input).filter((value) =>
+                          !travelDocsInfo.find((info) => info.nationality === value.code)
+                        ).map((country) => (
+                          <Dropdown.Item
+                            key={country.code}
+                            onClick={() => updateTravelDoc(index, "nationality", country.code)}
+                          >
+                            {country.name[i18n.getLang()]}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </Col>
+                  <Col>
+                    <Form.Label>{t("travelerInfo.document.type.title")}</Form.Label>
+                    <Form.Select
+                      className="mt-1 md-1"
+                      size="sm"
+                    >
+                    </Form.Select>
+                  </Col>
+                </InputGroup>
+              ))}
+            </Row>
           </Form>
+          <Button className="m-10" onClick={() => addTravelDocInfo()}>
+            {t("travelerInfo.document.add")}
+          </Button>
         </Row>
-        <Row>
-          <Form noValidate>
-          </Form>
-        </Row>
-        <Form>
-          <Form.Group>
-            <InputGroup>
-              <Form.Label>{t("travelerInfo.document.title")}</Form.Label>
-            </InputGroup>
-            <InputGroup>
-              <Form.Label>{t("travelerInfo.document.title")}</Form.Label>
-            </InputGroup>
-          </Form.Group>
-        </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="danger" onClick={() => onCloseDialog()}>
           {t("travelerInfo.cancel")}
         </Button>
-        <Button variant="primary" disabled={!isSubmittable}>{t("travelerInfo.save")}</Button>
+        <Button variant="primary" disabled={!isSubmittable} onClick={() => onSaveDialog()}>
+          {t("travelerInfo.save")}
+        </Button>
       </Modal.Footer>
     </Modal>
   );

@@ -8,7 +8,17 @@
       "initMsg": "Before using this system, please click the \"Traveler Information\" button above to fill in your basic information to ensure the normal operation of this system.",
       "document": {
         "title": "Travel Documents Information",
-        "issurance": "Please select the country/region of issuance of the travel document.",
+        "issurance": {
+          "title": "Issurance Country/Region",
+          "placeholder": "Type to search for country/region."
+        },
+        "type": {
+          "title": "Type",
+          "placeholder": "Travel Document Type",
+          "options": {
+            "ordinary": "Ordinary Passport"
+          }
+        },
         "add": "Add New Travel Document",
         "description": "Please list the travel documents that the traveler wishes to use during the journey. You can add multiple records.",
         "warning": "You must fill in at least one record of travel document information."
@@ -23,8 +33,8 @@
       "title": "Search Box",
       "description": "Please enter the departure and destination cities, and the system will recommend the most suitable flight itinerary for you.",
       "placeholder": {
-        "departure": "Departure IATA Code or Airport Name",
-        "destination": "Destination IATA Code or Airport Name"
+        "departure": "Departure Airport",
+        "destination": "Destination Airport"
       },
       "invalidInput": "Please enter the correct IATA code or airport name and select the airport you need from the option list.",
       "addNew": "Add New Itinerary",
@@ -41,7 +51,17 @@
       "initMsg": "爲了保障本系統的正常運作，請於使用本系統之前，點擊上方「旅客資訊」按鈕塡寫閣下的基本資料。",
       "document": {
         "title": "旅行證件資訊",
-        "issurance": "請選擇旅行證件簽發國家/地區",
+        "issurance": {
+          "title": "簽發國家/地區",
+          "placeholder": "輸入以搜尋國家/地區列表。"
+        },
+        "type": {
+          "title": "類型",
+          "placeholder": "旅行證件類型",
+          "options": {
+            "ordinary": "普通護照"
+          }
+        },
         "add": "新增旅行證件",
         "description": "請列出旅客希望於旅途中所使用的旅行證件，閣下亦可以加入多筆資料。",
         "warning": "閣下必須塡寫至少一筆旅行證件資料。"
@@ -53,8 +73,8 @@
       "title": "查詢框",
       "description": "請輸入出發地及目的地城市，系統將會爲閣下推薦最適合的飛航路線。",
       "placeholder": {
-        "departure": "出發地IATA代碼或機場名稱（僅支援英語）",
-        "destination": "目的地IATA代碼或機場名稱（僅支援英語）"
+        "departure": "出發地",
+        "destination": "目的地"
       },
       "invalidInput": "請輸入正確的IATA代碼或機場名稱，並從選項列表中選取合適的機場。",
       "addNew": "添加行程",

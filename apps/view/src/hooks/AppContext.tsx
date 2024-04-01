@@ -36,6 +36,8 @@ export enum AppActionTypes {
   SET_AIRPORTS = "SET_AIRPORTS",
   SET_COUNTRIES = "SET_COUNTRIES",
   SET_ITINERARIES = "SET_ITINERARIES",
+  SET_TRAVEL_DOCS = "SET_TRAVEL_DOCS",
+  SET_VISA_INFOS = "SET_VISA_INFO",
   SET_ERR_MSG = "SET_ERR_MSG",
   SET_RESULT_ROUTES = "SET_RESULT_ROUTES",
   RESET_ITINERARIES = "RESET_ITINERARIES",
@@ -46,6 +48,8 @@ type AppAction =
   | AppActionInterface<AppActionTypes.SET_AIRPORTS, AirportEnity[]>
   | AppActionInterface<AppActionTypes.SET_COUNTRIES, CountryEntity[]>
   | AppActionInterface<AppActionTypes.SET_ITINERARIES, { airport?: AirportEnity; input: string }[]>
+  | AppActionInterface<AppActionTypes.SET_TRAVEL_DOCS, FlightRouteParams["travelDocs"]>
+  | AppActionInterface<AppActionTypes.SET_VISA_INFOS, FlightRouteParams["visaInfos"]>
   | AppActionInterface<
     AppActionTypes.SET_ERR_MSG,
     { id: string; isNoticed: boolean; msg: string }[]
@@ -72,6 +76,12 @@ const reducer = (state: AppState, action: AppAction) => {
     }
     case AppActionTypes.SET_ITINERARIES: {
       return { ...state, itineraries: action.payload };
+    }
+    case AppActionTypes.SET_TRAVEL_DOCS: {
+      return { ...state, travellerInfo: { ...state.travellerInfo, travelDocs: action.payload } };
+    }
+    case AppActionTypes.SET_VISA_INFOS: {
+      return { ...state, travellerInfo: { ...state.travellerInfo, visaInfos: action.payload } };
     }
     case AppActionTypes.SET_ERR_MSG: {
       return { ...state, errMsg: action.payload };

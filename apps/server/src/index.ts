@@ -55,6 +55,8 @@ const startServer = async () => {
   await performTasks();
 
   app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   // Register route into express app
   routes.forEach((route) => {
