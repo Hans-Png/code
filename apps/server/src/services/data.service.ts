@@ -33,7 +33,9 @@ class DataService extends BaseService {
     const db = Database.getInstance();
     const { em } = db;
 
-    const countriesList = await em.findAll(CountryEntity);
+    const visaPolicies = await em.findAll(VisaPolicyEntity, { populate: ["fromCountry"] });
+    const validCountries = new Set(visaPolicies.map((policy) => policy.fromCountry.code));
+    const countriesList = await em.find(CountryEntity, { code: { $in: [...validCountries] } });
 
     return countriesList;
   }

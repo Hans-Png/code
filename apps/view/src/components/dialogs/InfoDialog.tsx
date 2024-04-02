@@ -170,54 +170,68 @@ const InfoDialog = (
             <Row>
               <Form.Text>{t("travelerInfo.document.description")}</Form.Text>
             </Row>
-            <Row>
-              {travelDocsInfo.map((info, index) => (
-                <InputGroup key={index}>
-                  <Col>
+            <Row className="p-1">
+              {Boolean(travelDocsInfo.length) && (
+                <Row>
+                  <Col xs={8}>
                     <Form.Label>{t("travelerInfo.document.issurance.title")}</Form.Label>
-                    <Dropdown>
-                      <Dropdown.Toggle size="sm">
-                        {info.nationality !== "XXX" ? getCountryName(info.nationality) : ""}
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu
-                        className="p-2"
-                        style={{
-                          maxHeight: "250px",
-                          overflowY: "scroll",
-                        }}
-                      >
-                        <Form.Control
-                          onChange={(e) => updateTravelDoc(index, "input", e.target.value)}
-                          value={info.input}
-                          placeholder={t("travelerInfo.document.issurance.placeholder")}
-                          autoFocus
-                        />
-                        {filteredCountries(info.input).filter((value) =>
-                          !travelDocsInfo.find((info) => info.nationality === value.code)
-                        ).map((country) => (
-                          <Dropdown.Item
-                            key={country.code}
-                            onClick={() => updateTravelDoc(index, "nationality", country.code)}
-                          >
-                            {country.name[i18n.getLang()]}
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Menu>
-                    </Dropdown>
                   </Col>
-                  <Col>
+                  <Col xs={4}>
                     <Form.Label>{t("travelerInfo.document.type.title")}</Form.Label>
-                    <Form.Select
-                      className="mt-1 md-1"
-                      size="sm"
-                    >
-                    </Form.Select>
                   </Col>
-                </InputGroup>
-              ))}
+                </Row>
+              )}
+              <Row>
+                {travelDocsInfo.map((info, index) => (
+                  <Row className="p-0">
+                    <Col xs={8}>
+                      <InputGroup key={index}>
+                        <Dropdown>
+                          <Dropdown.Toggle variant="outline-secondary" style={{ width: "100%" }}>
+                            {info.nationality !== "XXX" ? getCountryName(info.nationality) : ""}
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu
+                            className="p-2"
+                            style={{
+                              maxHeight: "250px",
+                              overflowY: "scroll",
+                            }}
+                          >
+                            <Form.Control
+                              onChange={(e) => updateTravelDoc(index, "input", e.target.value)}
+                              value={info.input}
+                              placeholder={t("travelerInfo.document.issurance.placeholder")}
+                              autoFocus
+                            />
+                            {filteredCountries(info.input).filter((value) =>
+                              !travelDocsInfo.find((info) => info.nationality === value.code)
+                            ).map((country) => (
+                              <Dropdown.Item
+                                key={country.code}
+                                onClick={() => updateTravelDoc(index, "nationality", country.code)}
+                              >
+                                {country.name[i18n.getLang()]}
+                              </Dropdown.Item>
+                            ))}
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </InputGroup>
+                    </Col>
+                    <Col xs={3}>
+                      <Form.Select></Form.Select>
+                    </Col>
+                    <Col xs={1}>
+                      <Button></Button>
+                    </Col>
+                  </Row>
+                ))}
+              </Row>
             </Row>
           </Form>
-          <Button className="m-10" onClick={() => addTravelDocInfo()}>
+          <Button
+            style={{ width: "auto", marginLeft: "auto", marginRight: "auto" }}
+            onClick={() => addTravelDocInfo()}
+          >
             {t("travelerInfo.document.add")}
           </Button>
         </Row>

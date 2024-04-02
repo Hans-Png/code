@@ -323,7 +323,7 @@ class FlightRouteService extends BaseService {
     }
 
     // Handle invalid cases
-    if (initialPopulation.length === 0) {
+    if (initialPopulation.length === 0 && optimalPopulation.length === 0) {
       throw new Error("No neighbor nodes found.");
     }
 
@@ -397,7 +397,7 @@ class FlightRouteService extends BaseService {
     }
 
     // Final Others score
-    const finalScore = nodeCountFactor + distanceFactor + (visaScore * 5);
+    const finalScore = nodeCountFactor + distanceFactor + (visaScore * 2.5);
 
     // F score
     const totalCost = tentativeGScore + (0.25 * heuristicScore) + (0.75 * finalScore);

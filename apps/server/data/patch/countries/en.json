@@ -1,4 +1,13 @@
 [
   { "id": -1, "alpha2": "xk", "alpha3": "xkx", "name": "Kosovo" },
-  { "id": 158, "alpha2": "tw", "alpha3": "twn", "name": "Taiwan" }
+  { "id": 158, "alpha2": "tw", "alpha3": "twn", "name": "Taiwan" },
+  { "id": 826, "alpha2": "gb", "alpha3": "gbr", "name": "United Kingdom" },
+  { "id": 862, "alpha2": "ve", "alpha3": "ven", "name": "Venezuela" },
+  { "id": 834, "alpha2": "tz", "alpha3": "tza", "name": "Tanzania" },
+  { "id": 583, "alpha2": "fm", "alpha3": "fsm", "name": "Micronesia" },
+  { "id": 408, "alpha2": "kp", "alpha3": "prk", "name": "North Korea" },
+  { "id": 410, "alpha2": "kr", "alpha3": "kor", "name": "South Korea" },
+  { "id": 364, "alpha2": "ir", "alpha3": "irn", "name": "Iran" },
+  { "id": 180, "alpha2": "cd", "alpha3": "cod", "name": "D.R. Congo" },
+  { "id": 68, "alpha2": "bo", "alpha3": "bol", "name": "Bolivia" }
 ]
