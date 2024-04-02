@@ -537,12 +537,13 @@ class FlightRouteService extends BaseService {
 
     const mutate = (individualNode: AirportNode) => {
       const { gScore, hScore, nodeToParentCount, distanceSoFar } = individualNode;
-      const gScoreMutated = gScore * (1 + Math.random() * 0.2 - 0.1);
-      const hScoreMutated = hScore * (1 + Math.random() * 0.2 - 0.1);
+      const mutateRate = 0.1 - 0.05;
+      const gScoreMutated = gScore * (1 + Math.random() * mutateRate);
+      const hScoreMutated = hScore * (1 + Math.random() * mutateRate);
       const nodeToParentMutated = Math.floor(
-        nodeToParentCount * (1 + Math.random() * 0.2 - 0.1),
+        nodeToParentCount * (1 + Math.random() * mutateRate),
       );
-      const distanceSoFarMutated = distanceSoFar * (1 + Math.random() * 0.2 - 0.1);
+      const distanceSoFarMutated = distanceSoFar * (1 + Math.random() * mutateRate);
       return {
         gScore: gScoreMutated,
         hScore: hScoreMutated,
