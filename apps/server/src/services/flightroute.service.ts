@@ -365,16 +365,17 @@ class FlightRouteService extends BaseService {
    */
   private static async calculateAStarScore(data: CalculateNodeParams) {
     const { currentNode, travelDocs, visaInfos, ruleSet } = data;
-    const { gScore, hScore, nodeToParentCount, distanceSoFar } = currentNode;
+    const { gScore, nodeToParentCount, distanceSoFar } = currentNode;
     const currentCountry = currentNode.airport.country;
     const visaRule = ruleSet?.find((rule) => rule.type);
 
     // Factors
-    const nodeCountFactor = 1 / (nodeToParentCount + 1);
-    const distanceFactor = 1 / (gScore + hScore);
+    const nodeCountFactor = (100 - nodeToParentCount) / 100; // Normalize
+    const distanceFactor = (200375 - distanceSoFar) / 200375; // Normalize
 
     // H score
-    const heuristicScore = this.calculateHeuristic(currentNode, data.destination);
+    const heuristicRawScore = this.calculateHeuristic(currentNode, data.destination);
+    const heuristicScore = heuristicRawScore / 20037; // Normalize
 
     // G score
     const tentativeGScore = gScore + heuristicScore;
@@ -382,7 +383,12 @@ class FlightRouteService extends BaseService {
     // Visa Score, Do not need to calculate again if transit via the same country
     let visaScore = 0;
     if (currentNode.parent && currentNode.parent.airport.country !== currentCountry) {
-      visaScore = await this.calculateVisaScore(travelDocs, visaInfos, currentCountry.code);
+      const rawScore = await this.calculateVisaScore(
+        travelDocs,
+        visaInfos,
+        currentCountry.code,
+      );
+      visaScore = rawScore / 1000000; // Normalize
     }
 
     // If there is custom rule for visa
@@ -391,14 +397,17 @@ class FlightRouteService extends BaseService {
     }
 
     // Final Others score
-    const finalScore = nodeCountFactor * distanceFactor * distanceSoFar + visaScore;
+    const finalScore = nodeCountFactor + distanceFactor + (visaScore * 5);
 
     // F score
-    const totalCost = tentativeGScore + heuristicScore + finalScore;
+    const totalCost = tentativeGScore + (0.25 * heuristicScore) + (0.75 * finalScore);
 
     return { gScore: tentativeGScore, hScore: heuristicScore, fScore: totalCost };
   }
 
+  /**
+   * Calculate score based on visa requirement
+   */
   private static async calculateVisaScore(
     travelDocs: TravelDocInfo[],
     visaInfos: VisaInfo[],
