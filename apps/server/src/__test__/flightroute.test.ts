@@ -1,3 +1,4 @@
+import consola from "consola";
 import assert from "node:assert";
 import { after, before, describe, test } from "node:test";
 import Database from "../database";
@@ -23,6 +24,7 @@ describe("[Unit] FlightRouteService", () => {
         itineraryResults.add(routeData.to.airport.iata);
       });
     });
+    consola.info(itineraryResults);
     assert.strictEqual(result.size, 1);
     assert.deepStrictEqual([...itineraryResults], ["HKG", "NRT"]);
   });
@@ -42,6 +44,7 @@ describe("[Unit] FlightRouteService", () => {
         itineraryResults.add(routeData.to.airport.iata);
       });
     });
+    consola.info(itineraryResults);
     assert.strictEqual(result.size, 2);
     assert.deepStrictEqual([...itineraryResults], ["HKG", "TPE", "NRT"]);
   });
@@ -61,6 +64,7 @@ describe("[Unit] FlightRouteService", () => {
         itineraryResults.add(routeData.to.airport.iata);
       });
     });
+    consola.info(itineraryResults);
     assert.ok(itineraryResults.has("BKK"));
     assert.ok(itineraryResults.has("MEX"));
   });
@@ -69,10 +73,10 @@ describe("[Unit] FlightRouteService", () => {
     const result = await FlightRouteService.calculateRoute({
       from: "BKK",
       to: "MEX",
-      travelDocs: [{ nationality: "HKG", type: "Ordinary" }, {
-        nationality: "CAN",
-        type: "Ordinary",
-      }],
+      travelDocs: [
+        { nationality: "HKG", type: "Ordinary" },
+        { nationality: "CAN", type: "Ordinary" },
+      ],
       visaInfos: [],
     });
 
@@ -83,6 +87,27 @@ describe("[Unit] FlightRouteService", () => {
         itineraryResults.add(routeData.to.airport.iata);
       });
     });
+    consola.info(itineraryResults);
+    assert.ok(itineraryResults.has("BKK"));
+    assert.ok(itineraryResults.has("MEX"));
+  });
+
+  test("should return transit flight with transit routes without visa and not powerful passport", async () => {
+    const result = await FlightRouteService.calculateRoute({
+      from: "BKK",
+      to: "MEX",
+      travelDocs: [{ nationality: "CHN", type: "Ordinary" }],
+      visaInfos: [],
+    });
+
+    const itineraryResults = new Set<string>();
+    result.forEach((routeDataArr) => {
+      routeDataArr.forEach((routeData) => {
+        itineraryResults.add(routeData.from.airport.iata);
+        itineraryResults.add(routeData.to.airport.iata);
+      });
+    });
+    consola.info(itineraryResults);
     assert.ok(itineraryResults.has("BKK"));
     assert.ok(itineraryResults.has("MEX"));
   });
@@ -103,30 +128,12 @@ describe("[Unit] FlightRouteService", () => {
         itineraryResults.add(routeData.to.airport.iata);
       });
     });
+    consola.info(itineraryResults);
     assert.ok(itineraryResults.has("BKK"));
     assert.ok(itineraryResults.has("EZE"));
   });
 
-  test("should return transit flight with transit routes without visa", async () => {
-    const result = await FlightRouteService.calculateRoute({
-      from: "BKK",
-      to: "MEX",
-      travelDocs: [{ nationality: "CHN", type: "Ordinary" }],
-      visaInfos: [],
-    });
-
-    const itineraryResults = new Set<string>();
-    result.forEach((routeDataArr) => {
-      routeDataArr.forEach((routeData) => {
-        itineraryResults.add(routeData.from.airport.iata);
-        itineraryResults.add(routeData.to.airport.iata);
-      });
-    });
-    assert.ok(itineraryResults.has("BKK"));
-    assert.ok(itineraryResults.has("MEX"));
-  });
-
-  test("should return long transit chains", async () => {
+  test("should return long transit chains with powerful passport", async () => {
     const result = await FlightRouteService.calculateRoute({
       from: "ZQN",
       to: "TOS",
@@ -141,6 +148,27 @@ describe("[Unit] FlightRouteService", () => {
         itineraryResults.add(routeData.to.airport.iata);
       });
     });
+    consola.info(itineraryResults);
+    assert.ok(itineraryResults.has("ZQN"));
+    assert.ok(itineraryResults.has("TOS"));
+  });
+
+  test("should return long transit chains with not so powerful passport", async () => {
+    const result = await FlightRouteService.calculateRoute({
+      from: "ZQN",
+      to: "TOS",
+      travelDocs: [{ nationality: "CHN", type: "Ordinary" }],
+      visaInfos: [],
+    });
+
+    const itineraryResults = new Set<string>();
+    result.forEach((routeDataArr) => {
+      routeDataArr.forEach((routeData) => {
+        itineraryResults.add(routeData.from.airport.iata);
+        itineraryResults.add(routeData.to.airport.iata);
+      });
+    });
+    consola.info(itineraryResults);
     assert.ok(itineraryResults.has("ZQN"));
     assert.ok(itineraryResults.has("TOS"));
   });

@@ -6,13 +6,22 @@
         "en": "Visa",
         "zh": "簽證"
       },
+      "localizedDescription": {
+        "en": "Caculate the weight of visa requirement, the higher the weight, the lower the priority if there is a visa requirement.",
+        "zh": "計算簽證要求對路線選擇的比重，佔比越高，若存在簽證要求，則該優先度越低。"
+      },
       "type": "visa"
     },
     {
-      "name": "",
+      "name": "CO2 Emission",
+
       "localizedName": {
         "en": "",
         "zh": ""
+      },
+      "localizedDescription": {
+        "en": "",
+        "zh": "計算簽證要求對路線選擇的比重"
       },
       "type": "distance"
     }

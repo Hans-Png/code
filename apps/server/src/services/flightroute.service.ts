@@ -8,6 +8,7 @@ import type {
   AirportNode,
   FlightRouteParams,
   RouteData,
+  RuleSet,
   TravelDocInfo,
   VisaInfo,
 } from "../typedef/flightroute";
@@ -25,6 +26,7 @@ interface CalculateStepParams {
   routeResult: Map<number, RouteData[]>;
   /** Cache for airport nodes. */
   airportNodeCache: Map<string, AirportNode>;
+  ruleSets?: RuleSet[];
 }
 
 interface CalculateNodeParams {
@@ -33,7 +35,7 @@ interface CalculateNodeParams {
   travelDocs: TravelDocInfo[];
   visaInfos: VisaInfo[];
   airportNodeCache: Map<string, AirportNode>;
-  ruleSet?: unknown[];
+  ruleSet?: RuleSet[];
 }
 
 class FlightRouteService extends BaseService {
@@ -155,7 +157,7 @@ class FlightRouteService extends BaseService {
     data: Omit<CalculateStepParams, "index">,
   ) {
     // Extract property
-    const { from, to, travelDocs, visaInfos } = data;
+    const { from, to, travelDocs, visaInfos, ruleSets } = data;
 
     // Variable for Set
     /** Priority Queue */
@@ -204,6 +206,7 @@ class FlightRouteService extends BaseService {
         travelDocs,
         visaInfos,
         airportNodeCache: data.airportNodeCache,
+        ruleSet: ruleSets,
       });
 
       for (const neighborNode of neighborNodes) {
@@ -319,18 +322,40 @@ class FlightRouteService extends BaseService {
       }
     }
 
-    // Apply the Genetic Greedy Algorithm to optimize the list of neighboring nodes
-    const optimizedNeighborNodes = await this.optimizeNeighborNodes({
-      // Select the optimize population if greedy
-      initialPopulation: optimalPopulation.length ? optimalPopulation : initialPopulation,
+    // Handle invalid cases
+    if (initialPopulation.length === 0) {
+      throw new Error("No neighbor nodes found.");
+    }
+
+    const initialNeighorNodes = await this.optimizeNeighborNodes({
+      initialPopulation,
       destination: data.destination,
       travelDocs: data.travelDocs,
       visaInfos: data.visaInfos,
       airportNodeCache: data.airportNodeCache,
+      ruleSets: data.ruleSet,
     });
 
+    // Handle there are potential optimal nodes
+    if (optimalPopulation.length) {
+      const optimalNeighborNodes = await this.optimizeNeighborNodes({
+        initialPopulation: optimalPopulation,
+        destination: data.destination,
+        travelDocs: data.travelDocs,
+        visaInfos: data.visaInfos,
+        airportNodeCache: data.airportNodeCache,
+        ruleSets: data.ruleSet,
+      });
+
+      // Considering the flight to final destination might not optimal
+      const optimizedFinalCandidates = [...initialNeighorNodes, ...optimalNeighborNodes]
+        .sort((a, b) => a.fScore - b.fScore);
+
+      return optimizedFinalCandidates;
+    }
+
     // Return result
-    return optimizedNeighborNodes;
+    return initialNeighorNodes;
   }
 
   /**
@@ -339,9 +364,10 @@ class FlightRouteService extends BaseService {
    * applied the rule defined later.
    */
   private static async calculateAStarScore(data: CalculateNodeParams) {
-    const { currentNode, travelDocs, visaInfos } = data;
+    const { currentNode, travelDocs, visaInfos, ruleSet } = data;
     const { gScore, hScore, nodeToParentCount, distanceSoFar } = currentNode;
     const currentCountry = currentNode.airport.country;
+    const visaRule = ruleSet?.find((rule) => rule.type);
 
     // Factors
     const nodeCountFactor = 1 / (nodeToParentCount + 1);
@@ -359,8 +385,13 @@ class FlightRouteService extends BaseService {
       visaScore = await this.calculateVisaScore(travelDocs, visaInfos, currentCountry.code);
     }
 
+    // If there is custom rule for visa
+    if (visaRule) {
+      visaScore *= visaRule.weight;
+    }
+
     // Final Others score
-    const finalScore = nodeCountFactor * distanceFactor * distanceSoFar * visaScore;
+    const finalScore = nodeCountFactor * distanceFactor * distanceSoFar + visaScore;
 
     // F score
     const totalCost = tentativeGScore + heuristicScore + finalScore;
@@ -419,7 +450,7 @@ class FlightRouteService extends BaseService {
             currScore = 50000;
             break;
           case "visa required":
-            currScore = 100000;
+            currScore = 1000000; // Add higher score to let program avoid node that need visa
             break;
           case "no admission":
           default:
@@ -476,6 +507,7 @@ class FlightRouteService extends BaseService {
       travelDocs: { nationality: string; type: string }[];
       visaInfos: { country: string; type: string }[];
       airportNodeCache: Map<string, AirportNode>;
+      ruleSets?: RuleSet[];
     },
   ) {
     // Helpers
@@ -528,6 +560,7 @@ class FlightRouteService extends BaseService {
           travelDocs: data.travelDocs,
           visaInfos: data.visaInfos,
           airportNodeCache: data.airportNodeCache,
+          ruleSet: data.ruleSets,
         });
         return score;
       }));

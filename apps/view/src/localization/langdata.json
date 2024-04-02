@@ -40,6 +40,9 @@
       "addNew": "Add New Itinerary",
       "delete": "Delete Itinerary",
       "reset": "Reset"
+    },
+    "result": {
+      "suggestTravelDocsDesc": "Recommend you to use the following travel documents:"
     }
   },
   "zh": {
@@ -80,6 +83,9 @@
       "addNew": "添加行程",
       "delete": "刪除行程",
       "reset": "重置行程"
+    },
+    "result": {
+      "suggestTravelDocsDesc": "推薦閣下使用以下旅行證件："
     }
   }
 }

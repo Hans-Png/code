@@ -1,5 +1,12 @@
 import type { AirportEntity, RouteEntity } from "../entities";
 
+export interface RuleSet {
+  type: string;
+  /** Between -1 and 1, negative means prefer, positive means not prefer, 0 mean not consider */
+  weight: number;
+  calParams?: string;
+}
+
 export interface TravelDocInfo {
   /** Nationality as specified on the travel document */
   nationality: string;
