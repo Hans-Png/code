@@ -353,8 +353,11 @@ class FlightRouteService extends BaseService {
     // G score
     const tentativeGScore = gScore + heuristicScore;
 
-    // Visa Score
-    const visaScore = await this.calculateVisaScore(travelDocs, visaInfos, currentCountry.code);
+    // Visa Score, Do not need to calculate again if transit via the same country
+    let visaScore = 0;
+    if (currentNode.parent && currentNode.parent.airport.country !== currentCountry) {
+      visaScore = await this.calculateVisaScore(travelDocs, visaInfos, currentCountry.code);
+    }
 
     // Final Others score
     const finalScore = nodeCountFactor * distanceFactor * distanceSoFar * visaScore;

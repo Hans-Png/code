@@ -65,6 +65,28 @@ describe("[Unit] FlightRouteService", () => {
     assert.ok(itineraryResults.has("MEX"));
   });
 
+  test("should return transit flight with multiple passports", async () => {
+    const result = await FlightRouteService.calculateRoute({
+      from: "BKK",
+      to: "MEX",
+      travelDocs: [{ nationality: "HKG", type: "Ordinary" }, {
+        nationality: "CAN",
+        type: "Ordinary",
+      }],
+      visaInfos: [],
+    });
+
+    const itineraryResults = new Set<string>();
+    result.forEach((routeDataArr) => {
+      routeDataArr.forEach((routeData) => {
+        itineraryResults.add(routeData.from.airport.iata);
+        itineraryResults.add(routeData.to.airport.iata);
+      });
+    });
+    assert.ok(itineraryResults.has("BKK"));
+    assert.ok(itineraryResults.has("MEX"));
+  });
+
   test("should return transit flight with transit routes specified", async () => {
     const result = await FlightRouteService.calculateRoute({
       from: "BKK",
