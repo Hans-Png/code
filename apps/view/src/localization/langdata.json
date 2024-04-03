@@ -25,7 +25,12 @@
         "warning": "You must fill in at least one record of travel document information."
       },
       "visa": {
-        "title": "Visa/Entry Permit Information"
+        "title": "Visa/Entry Permit Information (Optional)",
+        "description": "Traveler can choose to list the visa/entry permit information that wished to use during the journey, and can also add multiple records.",
+        "options": {
+          "tourist": "Tourist"
+        },
+        "add": "Add New Visa/Entry Permit"
       },
       "save": "Save Change",
       "cancel": "Cancel"
@@ -81,6 +86,14 @@
         "add": "新增旅行證件",
         "description": "請列出旅客希望於旅途中所使用的旅行證件，閣下亦可以加入多筆資料。",
         "warning": "閣下必須塡寫至少一筆旅行證件資料。"
+      },
+      "visa": {
+        "title": "簽證/入境許可資訊（可選）",
+        "description": "旅客可選擇列出所持有的簽證/入境許可資訊，亦可以加入多筆資料。",
+        "options": {
+          "tourist": "訪客"
+        },
+        "add": "新增簽證/入境許可"
       },
       "save": "保存更改",
       "cancel": "取消"

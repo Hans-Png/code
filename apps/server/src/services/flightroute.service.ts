@@ -365,12 +365,12 @@ class FlightRouteService extends BaseService {
     const visaRule = ruleSet?.find((rule) => rule.type);
 
     // Factors
-    const nodeCountFactor = (100 - nodeToParentCount) / 100; // Normalize
+    const nodeCountFactor = nodeToParentCount / 100; // Normalize
     const distanceFactor = (200375 - distanceSoFar) / 200375; // Normalize
 
     // H score
     const heuristicRawScore = this.calculateHeuristic(currentNode, data.destination);
-    const heuristicScore = (heuristicRawScore / 20037) * 1.5; // Normalize
+    const heuristicScore = (heuristicRawScore / 20037) * 2.5; // Normalize
 
     // G score
     const tentativeGScore = gScore + heuristicScore;
@@ -392,8 +392,8 @@ class FlightRouteService extends BaseService {
     }
 
     // Final Others score
-    const ruleScore = visaScore;
-    const finalScore = nodeCountFactor + distanceFactor + (ruleScore * 2.5);
+    const ruleScore = visaScore + nodeCountFactor;
+    const finalScore = distanceFactor + (ruleScore * 2.5);
 
     // F score
     const totalCost = tentativeGScore + (0.25 * heuristicScore) + (0.75 * finalScore);
