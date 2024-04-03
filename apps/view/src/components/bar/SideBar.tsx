@@ -1,7 +1,7 @@
 import React from "react";
-import { Button, Col, Container, Nav, Row } from "react-bootstrap";
-import InfoDialog from "../dialogs/InfoDialog";
+import { Col, Container, Row } from "react-bootstrap";
 import MenuBar from "../info/MenuBar";
+import ResultBox from "../info/ResultBox";
 import SearchBox from "../info/SearchBox";
 
 const SideBar = () => {
@@ -15,8 +15,10 @@ const SideBar = () => {
           <SearchBox />
         </Col>
       </Row>
+      <hr />
       <Row className="overflow-auto mh-45">
         <Col className="result-container">
+          <ResultBox />
         </Col>
       </Row>
     </Container>

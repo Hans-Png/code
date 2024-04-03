@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Dropdown, Form, InputGroup, Row } from "react-bootstrap";
+import { Button, Col, Container, Dropdown, Form, InputGroup, Row, Spinner } from "react-bootstrap";
 import { GeoAltFill, ThreeDotsVertical, XCircle } from "react-bootstrap-icons";
 import { useI18n } from "react-simple-i18n";
 import getFlightRouteResult from "../../api/flightroute.api";
@@ -91,6 +91,7 @@ const SearchBox = () => {
     const newItineraries = [...itineraries];
     newItineraries[index] = { ...itineraries[index], airport, input: input ?? "" };
     dispatch({ type: AppActionTypes.SET_ITINERARIES, payload: newItineraries });
+    dispatch({ type: AppActionTypes.SET_RESULT_ROUTES, payload: [] });
   };
 
   const addItinerary = () => {
@@ -233,7 +234,9 @@ const SearchBox = () => {
             onClick={async () => await searchRoutes()}
             disabled={!isAllowToSearch && !isLoading}
           >
-            {t("search")}
+            {isLoading
+              ? <Spinner as="span" size="sm" role="status" />
+              : t("search")}
           </Button>
         </Col>
       </Row>

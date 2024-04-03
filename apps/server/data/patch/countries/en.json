@@ -9,5 +9,8 @@
   { "id": 410, "alpha2": "kr", "alpha3": "kor", "name": "South Korea" },
   { "id": 364, "alpha2": "ir", "alpha3": "irn", "name": "Iran" },
   { "id": 180, "alpha2": "cd", "alpha3": "cod", "name": "D.R. Congo" },
-  { "id": 68, "alpha2": "bo", "alpha3": "bol", "name": "Bolivia" }
+  { "id": 68, "alpha2": "bo", "alpha3": "bol", "name": "Bolivia" },
+  { "id": 275, "alpha2": "ps", "alpha3": "pse", "name": "Palestine" },
+  { "id": 418, "alpha2": "la", "alpha3": "lao", "name": "Laos" },
+  { "id": 498, "alpha2": "md", "alpha3": "mda", "name": "Moldova" }
 ]

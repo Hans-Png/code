@@ -10,6 +10,7 @@ import {
   Modal,
   Row,
 } from "react-bootstrap";
+import { Trash } from "react-bootstrap-icons";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { useI18n } from "react-simple-i18n";
 import { AppActionTypes, useAppStore } from "../../hooks/AppContext";
@@ -124,13 +125,6 @@ const InfoDialog = (
     return country ? country.name[lang] : "";
   };
 
-  // Dropdowns methods
-
-  const onHandleDropdown = (index: number) => {
-    const newTravelDocsInfo = [...travelDocsInfo];
-    newTravelDocsInfo[index].isDropdownToggled = !newTravelDocsInfo[index].isDropdownToggled;
-  };
-
   // Travel Docs methods
 
   const addTravelDocInfo = () => {
@@ -147,6 +141,11 @@ const InfoDialog = (
   const updateTravelDoc = (index: number, key: "nationality" | "type" | "input", value: string) => {
     const newTravelDocsInfo = [...travelDocsInfo];
     newTravelDocsInfo[index][key] = value;
+    setTravelDocsInfo(newTravelDocsInfo);
+  };
+
+  const deleteTravelDoc = (index: number) => {
+    const newTravelDocsInfo = [...travelDocsInfo].filter((_info, i) => i !== index);
     setTravelDocsInfo(newTravelDocsInfo);
   };
 
@@ -183,11 +182,14 @@ const InfoDialog = (
               )}
               <Row>
                 {travelDocsInfo.map((info, index) => (
-                  <Row className="p-0">
+                  <Row className="p-0 mt-1 md-1">
                     <Col xs={8}>
                       <InputGroup key={index}>
                         <Dropdown>
-                          <Dropdown.Toggle variant="outline-secondary" style={{ width: "100%" }}>
+                          <Dropdown.Toggle
+                            variant="outline-secondary"
+                            style={{ width: "100%" }}
+                          >
                             {info.nationality !== "XXX" ? getCountryName(info.nationality) : ""}
                           </Dropdown.Toggle>
                           <Dropdown.Menu
@@ -221,7 +223,12 @@ const InfoDialog = (
                       <Form.Select></Form.Select>
                     </Col>
                     <Col xs={1}>
-                      <Button></Button>
+                      <Button
+                        variant="outline-danger"
+                        onClick={() => deleteTravelDoc(index)}
+                      >
+                        <Trash />
+                      </Button>
                     </Col>
                   </Row>
                 ))}

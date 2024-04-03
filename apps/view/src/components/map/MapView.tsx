@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Polyline, Popup, TileLayer } from "react-leaflet";
 import { useAppStore } from "../../hooks/AppContext";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -20,16 +20,51 @@ const icon = L.icon({
 const MapView = () => {
   // App State
   const { state } = useAppStore();
-  const { airports, itineraries, resultRoutes } = state;
+  const { itineraries, resultRoutes } = state;
   // Local State
-  const [isValidItineraies, setIsValidItineraies] = useState(false);
+  const [itineraryMarkers, setItineraryMarkers] = useState<
+    { airport: AirportEnity; position: L.LatLng }[]
+  >([]); // [
+  const [resultMarkers, setResultMarkers] = useState<
+    { airport: AirportEnity; position: L.LatLng }[]
+  >([]);
+  const [isValidItineraries, setIsValidItineraries] = useState(false);
 
+  // Hooks
   useEffect(() => {
+    // Check
     const itineraryAirports = itineraries.map((itinerary) => itinerary.airport);
     if (itineraryAirports.length > 0 && !resultRoutes.length) {
-      setIsValidItineraies(true);
+      setIsValidItineraries(true);
+      const validItineraries: { airport: AirportEnity; position: L.LatLng }[] = [];
+      itineraryAirports.forEach((airport) => {
+        if (airport) {
+          validItineraries.push({
+            airport,
+            position: new L.LatLng(airport.latitude, airport.longitude),
+          });
+        }
+      });
+      setItineraryMarkers(validItineraries);
     } else {
-      setIsValidItineraies(false);
+      setIsValidItineraries(false);
+      setItineraryMarkers([]);
+    }
+
+    // Set Results
+    if (resultRoutes.length > 0) {
+      const markerMap = new Map<string, AirportEnity>();
+      resultRoutes.forEach((route) => {
+        const { from, to } = route;
+        markerMap.set(from.iata, from);
+        markerMap.set(to.iata, to);
+      });
+      const resultMarkerList = Array.from(markerMap.values()).map((airport) => (
+        { airport, position: new L.LatLng(airport.latitude, airport.longitude) }
+      ));
+      setResultMarkers(resultMarkerList);
+    } else {
+      setResultMarkers([]);
     }
   }, [itineraries, resultRoutes]);
 
@@ -39,6 +74,7 @@ const MapView = () => {
         <MapContainer
           center={[22.302711, 114.177216]}
           zoom={4}
+          worldCopyJump
           style={{
             height: "100%",
           }}
@@ -47,18 +83,43 @@ const MapView = () => {
             url={`https://tile.openstreetmap.org/{z}/{x}/{y}.png	`}
             attribution={`&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors`}
           />
-          {isValidItineraies && itineraries.map((itinerary, index) => {
-            if (itinerary.airport) {
-              const { name, longitude, latitude } = itinerary.airport;
-              return (
-                <Marker key={index} position={[latitude, longitude]} icon={icon}>
-                  <Popup minWidth={90}>{name}</Popup>
-                </Marker>
-              );
-            } else {
-              return null;
-            }
+          {isValidItineraries && itineraryMarkers.map((marker, index) => {
+            const { airport, position } = marker;
+            const { name, iata } = airport;
+            return (
+              <Marker
+                key={index}
+                position={position}
+                icon={icon}
+              >
+                <Popup minWidth={90}>
+                  <div>{iata}</div>
+                  <div>{name}</div>
+                </Popup>
+              </Marker>
+            );
           })}
+          {Boolean(resultMarkers.length) && resultMarkers.map((marker, index) => {
+            const { airport, position } = marker;
+            const { name, iata } = airport;
+            return (
+              <React.Fragment>
+                <Marker
+                  key={index}
+                  position={position}
+                  icon={icon}
+                >
+                  <Popup minWidth={90}>
+                    <div>{iata}</div>
+                    <div>{name}</div>
+                  </Popup>
+                </Marker>
+              </React.Fragment>
+            );
+          })}
+          {Boolean(resultMarkers.length) && (
+            <Polyline positions={resultMarkers.map((marker) => marker.position)} color="red" />
+          )}
         </MapContainer>
       </div>
     </React.Fragment>

@@ -3,6 +3,7 @@
     "language": "English",
     "title": "Traveler Flight Itinerary Recommendation System",
     "search": "Search",
+    "loading": "Loading...",
     "travelerInfo": {
       "title": "Traveler Information",
       "initMsg": "Before using this system, please click the \"Traveler Information\" button above to fill in your basic information to ensure the normal operation of this system.",
@@ -49,6 +50,7 @@
     "language": "中文",
     "title": "旅客飛航路線推薦系統",
     "search": "查詢",
+    "loading": "加載中……",
     "travelerInfo": {
       "title": "旅客資訊",
       "initMsg": "爲了保障本系統的正常運作，請於使用本系統之前，點擊上方「旅客資訊」按鈕塡寫閣下的基本資料。",
