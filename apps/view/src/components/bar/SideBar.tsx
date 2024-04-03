@@ -16,7 +16,7 @@ const SideBar = () => {
         </Col>
       </Row>
       <hr />
-      <Row className="overflow-auto" style={{ maxHeight: "50vh" }}>
+      <Row className="overflow-auto" style={{ maxHeight: "55vh" }}>
         <Col className="overflow-auto result-container">
           <ResultBox />
         </Col>

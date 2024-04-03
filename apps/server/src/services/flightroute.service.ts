@@ -392,7 +392,8 @@ class FlightRouteService extends BaseService {
     }
 
     // Final Others score
-    const finalScore = nodeCountFactor + distanceFactor + (visaScore * 2.5);
+    const ruleScore = visaScore;
+    const finalScore = nodeCountFactor + distanceFactor + (ruleScore * 2.5);
 
     // F score
     const totalCost = tentativeGScore + (0.25 * heuristicScore) + (0.75 * finalScore);
@@ -550,7 +551,7 @@ class FlightRouteService extends BaseService {
     // Destruct property
     const { initialPopulation } = data;
 
-    const populationSize = 50;
+    const populationSize = 75;
     const numGenerations = 10;
     const mutationRate = 0.8;
 

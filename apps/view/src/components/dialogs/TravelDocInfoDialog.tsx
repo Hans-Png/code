@@ -1,38 +1,17 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Col,
-  Container,
-  Dropdown,
-  FloatingLabel,
-  Form,
-  InputGroup,
-  Modal,
-  Row,
-} from "react-bootstrap";
+import { Alert, Button, Col, Dropdown, Form, InputGroup, Modal, Row } from "react-bootstrap";
 import { Trash } from "react-bootstrap-icons";
-import { Typeahead } from "react-bootstrap-typeahead";
 import { useI18n } from "react-simple-i18n";
 import { AppActionTypes, useAppStore } from "../../hooks/AppContext";
-import type { TravelDocInfo, VisaInfo } from "../../types/flightroute";
+import type { TravelDocInfo } from "../../types/flightroute";
 
-enum VisaType {
-  TOURIST = "TOURIST",
-  RESIDENCE = "RESIDENCE",
-  PR = "PR",
-}
-
-enum TravelDocType {
-  ORDINARY = "ORDINARY",
-}
-
-const InfoDialog = (
-  { show, toggleInfoDialog }: { show: boolean; toggleInfoDialog: (value: boolean) => void },
+const TravelDocInfoDialog = (
+  { show, toggleDialog }: { show: boolean; toggleDialog: (value: boolean) => void },
 ) => {
   const { t, i18n } = useI18n();
   const { state, dispatch } = useAppStore();
   const { countries, travellerInfo } = state;
-  const { travelDocs, visaInfos } = travellerInfo;
+  const { travelDocs } = travellerInfo;
 
   // Local State
   const [travelDocsInfo, setTravelDocsInfo] = useState<
@@ -40,44 +19,38 @@ const InfoDialog = (
   >(
     [],
   );
-  const [heldVisaInfos, setHeldVisaInfos] = useState<
-    Array<VisaInfo & { input: string; isDropdownToggled: boolean }>
-  >([]);
   const [isSubmittable, setIsSubmittable] = useState(false);
 
   // Hooks
   useEffect(() => {
-    let savedTravelDocs: Array<TravelDocInfo & { input: string; isDropdownToggled: boolean }> = [];
-    let savedVisaInfos: Array<VisaInfo & { input: string; isDropdownToggled: boolean }> = [];
     if (show) {
-      savedTravelDocs = travelDocs.map((info) => ({
+      const savedTravelDocs = travelDocs.map((info) => ({
         ...info,
         input: "",
         isDropdownToggled: false,
       }));
-      savedVisaInfos = visaInfos.map((info) => ({ ...info, input: "", isDropdownToggled: false }));
+      setTravelDocsInfo(savedTravelDocs);
+    } else {
+      setTimeout(() => {
+        setTravelDocsInfo([]);
+      }, 100);
     }
-    setTravelDocsInfo(savedTravelDocs);
-    setHeldVisaInfos(savedVisaInfos);
-  }, [show, travelDocs, visaInfos]);
+  }, [show, travelDocs]);
 
   useEffect(() => {
     const isTravelDocsValid = travelDocsInfo.every((info) => info.nationality !== "XXX");
-    const isVisaInfosValid = heldVisaInfos.every((info) => info.country !== "XXX");
 
-    if (isTravelDocsValid && isVisaInfosValid) {
+    if (isTravelDocsValid) {
       setIsSubmittable(true);
     } else {
       setIsSubmittable(false);
     }
-  }, [travelDocsInfo, heldVisaInfos]);
+  }, [travelDocsInfo]);
 
   // Dialog Methods //
 
   const onCloseDialog = () => {
-    toggleInfoDialog(false);
-    setTravelDocsInfo([]);
-    setHeldVisaInfos([]);
+    toggleDialog(false);
   };
 
   const onSaveDialog = () => {
@@ -85,14 +58,9 @@ const InfoDialog = (
       const { input: _input, isDropdownToggled: _isDropdownToggled, ...travelDoc } = info;
       return travelDoc;
     }).filter((info) => info.nationality !== "XXX");
-    const newVisaInfos = heldVisaInfos.map((info) => {
-      const { input: _input, isDropdownToggled: _isDropdownToggled, ...visaInfo } = info;
-      return visaInfo;
-    }).filter((info) => info.country !== "XXX");
 
     dispatch({ type: AppActionTypes.SET_TRAVEL_DOCS, payload: newTravelDocsInfo });
-    dispatch({ type: AppActionTypes.SET_VISA_INFOS, payload: newVisaInfos });
-    toggleInfoDialog(false);
+    onCloseDialog();
   };
 
   // Dropdown Methods //
@@ -154,22 +122,25 @@ const InfoDialog = (
       size="lg"
       show={show}
       fullscreen="sm-down"
-      onHide={() => toggleInfoDialog(false)}
+      onHide={() => toggleDialog(false)}
+      backdrop={!travelDocs.length ? "static" : true}
       centered
     >
       <Modal.Header>
-        <Modal.Title>{t("travelerInfo.title")}</Modal.Title>
+        <Modal.Title>{t("travelerInfo.document.title")}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Row>
           <Form noValidate>
-            <Row>
-              <Form.Label>{t("travelerInfo.document.title")}</Form.Label>
-            </Row>
+            {!travelDocsInfo.length && (
+              <Alert className="mt-1 md-1" variant="danger">
+                {t("travelerInfo.document.warning")}
+              </Alert>
+            )}
             <Row>
               <Form.Text>{t("travelerInfo.document.description")}</Form.Text>
             </Row>
-            <Row className="p-1">
+            <Row className="mt-1 md-1 p-1">
               {Boolean(travelDocsInfo.length) && (
                 <Row>
                   <Col xs={8}>
@@ -247,12 +218,22 @@ const InfoDialog = (
             {t("travelerInfo.document.add")}
           </Button>
         </Row>
+        <Row>
+        </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="danger" onClick={() => onCloseDialog()}>
+        <Button
+          variant="danger"
+          disabled={!travelDocs.length || !travelDocsInfo.length}
+          onClick={() => onCloseDialog()}
+        >
           {t("travelerInfo.cancel")}
         </Button>
-        <Button variant="primary" disabled={!isSubmittable} onClick={() => onSaveDialog()}>
+        <Button
+          variant="primary"
+          disabled={!isSubmittable || !travelDocsInfo.length}
+          onClick={() => onSaveDialog()}
+        >
           {t("travelerInfo.save")}
         </Button>
       </Modal.Footer>
@@ -260,4 +241,4 @@ const InfoDialog = (
   );
 };
 
-export default InfoDialog;
+export default TravelDocInfoDialog;

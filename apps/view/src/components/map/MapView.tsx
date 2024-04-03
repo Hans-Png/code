@@ -84,6 +84,7 @@ const MapView = () => {
       <div className="leaflet-map-container" style={{ height: "calc(100vh - 56px)" }}>
         <MapContainer
           center={[22.302711, 114.177216]}
+          worldCopyJump
           zoom={4}
           style={{
             height: "100%",

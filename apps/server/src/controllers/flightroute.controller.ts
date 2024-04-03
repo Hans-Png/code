@@ -73,6 +73,12 @@ class FlightRouteController extends BaseController {
                       ...noVisaRequiredDocs.map((visaInfoItem) => visaInfoItem.travelDoc),
                     ];
                   }
+                } else {
+                  const visaInformation = visaInfos.find((visaInfoItem) => (
+                    visaInfoItem.country === toAirport.country.code
+                  ));
+                  consola.info(visaInformation);
+                  result.isVisaRequired = Boolean(!visaInformation);
                 }
               }
 

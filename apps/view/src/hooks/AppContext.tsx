@@ -103,11 +103,11 @@ export const AppContextProvider = ({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     const fetchData = async () => {
-      const airports = await getAirportList();
-      dispatch({ type: AppActionTypes.SET_AIRPORTS, payload: airports });
-
       const countries = await getCountriesList();
       dispatch({ type: AppActionTypes.SET_COUNTRIES, payload: countries });
+
+      const airports = await getAirportList();
+      dispatch({ type: AppActionTypes.SET_AIRPORTS, payload: airports });
     };
     fetchData();
   }, []);
