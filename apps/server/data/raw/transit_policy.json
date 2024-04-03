@@ -1,0 +1,13 @@
+[
+  {
+    "country": "HKG",
+    "transitVisaRequired": false,
+    "transitDurationHours": 176,
+    "applicableTo": [
+      {
+        "countryCode": "CHN",
+        "travelDocumentType": "Ordinary"
+      }
+    ]
+  }
+]

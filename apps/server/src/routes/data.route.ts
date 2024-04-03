@@ -13,7 +13,6 @@ class DataRoute extends BaseRoute {
   protected setRoutes(): void {
     this.router.get("/allairports", this.#controller.getAllAirports);
     this.router.get("/allcountries", this.#controller.getAllCountries);
-    this.router.get("/airport", this.#controller.getAirportData);
   }
 }
 

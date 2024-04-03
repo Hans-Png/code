@@ -9,9 +9,10 @@ import {
   CountryEntity,
   RouteCarrierEntity,
   RouteEntity,
+  TransitPolicyEntity,
   VisaPolicyEntity,
 } from "../entities";
-import type { AirlineRouteJson, RouteInfo } from "../typedef/airline-route";
+import type { AirlineRouteJson, RouteInfo, TransitPolicyData } from "../typedef/airline-route";
 import { dirPath, logger as consola } from "../utils";
 
 class InitializeService extends BaseService {
@@ -34,6 +35,7 @@ class InitializeService extends BaseService {
       await this.writeCountryData();
       await this.writeCountryDataPatch(); // Write additional or patched country data
       await this.writeVisaPolicyData();
+      await this.writeTransitPolicyData();
       await this.writeAirlineRoutesData();
 
       this.#logger.success("Database initialized successfully.");
@@ -199,6 +201,35 @@ class InitializeService extends BaseService {
 
     // End
     this.#logger.success("Writing visa policy data into database completed.");
+  }
+
+  private static async writeTransitPolicyData() {
+    this.#logger.start("Writing transit policy data into database...");
+
+    // Prepare database instance
+    const db = Database.getInstance();
+    const { em } = db;
+
+    const dataDir = path.resolve(dirPath.data, "raw");
+    const dataJsonPath = path.resolve(dataDir, "transit_policy.json");
+    const dataString = await fs.readFile(dataJsonPath, "utf-8");
+    const dataJson: TransitPolicyData[] = JSON.parse(dataString);
+
+    const transitEntities = new Set<TransitPolicyEntity>();
+    dataJson.forEach((data) => {
+      const entity = em.create(TransitPolicyEntity, {
+        country: data.country,
+        transitVisaRequired: data.transitVisaRequired,
+        transitDurationHours: data.transitDurationHours,
+        applicableTo: data.applicableTo,
+      });
+
+      transitEntities.add(entity);
+    });
+
+    await em.persistAndFlush([...transitEntities]);
+
+    this.#logger.success("Writing transit policy data into database completed.");
   }
 
   private static async writeAirlineRoutesData() {

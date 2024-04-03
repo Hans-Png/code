@@ -27,9 +27,6 @@ class DataController extends BaseController {
       res.status(500).send(err);
     }
   };
-
-  public getAirportData = async () => {
-  };
 }
 
 export default DataController;

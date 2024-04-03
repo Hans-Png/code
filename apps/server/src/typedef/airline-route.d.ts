@@ -24,3 +24,10 @@ export interface AirportInfo {
   routes: RouteInfo[];
   timezone: string;
 }
+
+export interface TransitPolicyData {
+  country: string;
+  transitVisaRequired: boolean;
+  transitDurationHours: number;
+  applicableTo: { countryCode: string; travelDocumentType: string }[];
+}

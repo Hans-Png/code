@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { getAirportList, getCountriesList } from "../api/data.api";
 import type { AirportEnity, CountryEntity } from "../types/data";
-import type { FlightRouteParams } from "../types/flightroute";
+import type { FlightRouteParams, ResultRoute } from "../types/flightroute";
 
 export interface AppState {
   countries: CountryEntity[];
@@ -10,11 +10,7 @@ export interface AppState {
   /** Store itineraries records */
   itineraries: { airport?: AirportEnity; input: string }[];
   /** Store result route records */
-  resultRoutes: {
-    from: AirportEnity;
-    to: AirportEnity;
-    route: { time: number; distance: number };
-  }[];
+  resultRoutes: ResultRoute[];
   errMsg: { id: string; isNoticed: boolean; msg: string }[];
 }
 
@@ -56,7 +52,7 @@ type AppAction =
   >
   | AppActionInterface<
     AppActionTypes.SET_RESULT_ROUTES,
-    { from: AirportEnity; to: AirportEnity; route: { distance: number; time: number } }[]
+    ResultRoute[]
   >
   | AppActionInterface<AppActionTypes.RESET_ITINERARIES, undefined>
   | AppActionInterface<AppActionTypes.SEARCH_ROUTES, undefined>;

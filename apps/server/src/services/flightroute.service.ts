@@ -57,7 +57,7 @@ class FlightRouteService extends BaseService {
     // Inidialize itinerary map
     const itinerary = transitThrough ? [from, ...transitThrough, to] : [from, to];
     await Promise.all(itinerary.map(async (iata, index) => {
-      const airport = await em.findOneOrFail(AirportEntity, { iata });
+      const airport = await em.findOneOrFail(AirportEntity, { iata }, { populate: ["country"] });
       airportItinerary.set(index, airport);
     }));
 
@@ -322,11 +322,6 @@ class FlightRouteService extends BaseService {
       }
     }
 
-    // Handle invalid cases
-    if (initialPopulation.length === 0 && optimalPopulation.length === 0) {
-      throw new Error("No neighbor nodes found.");
-    }
-
     const initialNeighorNodes = await this.optimizeNeighborNodes({
       initialPopulation,
       destination: data.destination,
@@ -375,7 +370,7 @@ class FlightRouteService extends BaseService {
 
     // H score
     const heuristicRawScore = this.calculateHeuristic(currentNode, data.destination);
-    const heuristicScore = heuristicRawScore / 20037; // Normalize
+    const heuristicScore = (heuristicRawScore / 20037) * 1.5; // Normalize
 
     // G score
     const tentativeGScore = gScore + heuristicScore;
@@ -388,7 +383,7 @@ class FlightRouteService extends BaseService {
         visaInfos,
         currentCountry.code,
       );
-      visaScore = rawScore / 1000000; // Normalize
+      visaScore = rawScore / 1500000; // Normalize
     }
 
     // If there is custom rule for visa
@@ -459,7 +454,7 @@ class FlightRouteService extends BaseService {
             currScore = 50000;
             break;
           case "visa required":
-            currScore = 1000000; // Add higher score to let program avoid node that need visa
+            currScore = 100000; // Add higher score to let program avoid node that need visa
             break;
           case "no admission":
           default:

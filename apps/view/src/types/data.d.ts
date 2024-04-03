@@ -1,3 +1,9 @@
+export interface CountryEntity {
+  code: string;
+  altCode: string;
+  name: { [language: string]: string };
+}
+
 export interface AirportEnity {
   iata: string;
   latitude: number;
@@ -5,14 +11,8 @@ export interface AirportEnity {
   /** In English */
   cityName: string;
   localizedCityName?: { [language: string]: string };
-  country: string;
+  country: CountryEntity;
   /** In English */
   name: string;
   localizedName?: { [language: string]: string };
-}
-
-export interface CountryEntity {
-  code: string;
-  altCode: string;
-  name: { [language: string]: string };
 }

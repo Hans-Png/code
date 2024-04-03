@@ -47,7 +47,7 @@ class DataService extends BaseService {
     const visaRequirement = await em.findOne(VisaPolicyEntity, {
       fromCountry: nationality,
       toCountry: destination,
-    });
+    }, { populate: ["visaRequirementType"] });
 
     return visaRequirement;
   }

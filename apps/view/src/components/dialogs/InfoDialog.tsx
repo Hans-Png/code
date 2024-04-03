@@ -182,7 +182,7 @@ const InfoDialog = (
               )}
               <Row>
                 {travelDocsInfo.map((info, index) => (
-                  <Row className="p-0 mt-1 md-1">
+                  <Row className="p-0 mt-1 md-1" style={{ marginLeft: "auto" }}>
                     <Col xs={8}>
                       <InputGroup key={index}>
                         <Dropdown>
@@ -200,13 +200,16 @@ const InfoDialog = (
                             }}
                           >
                             <Form.Control
-                              onChange={(e) => updateTravelDoc(index, "input", e.target.value)}
+                              onChange={(e) =>
+                                updateTravelDoc(index, "input", e.target.value)}
                               value={info.input}
                               placeholder={t("travelerInfo.document.issurance.placeholder")}
                               autoFocus
                             />
                             {filteredCountries(info.input).filter((value) =>
-                              !travelDocsInfo.find((info) => info.nationality === value.code)
+                              !travelDocsInfo.find((info) =>
+                                info.nationality === value.code
+                              )
                             ).map((country) => (
                               <Dropdown.Item
                                 key={country.code}
@@ -220,7 +223,9 @@ const InfoDialog = (
                       </InputGroup>
                     </Col>
                     <Col xs={3}>
-                      <Form.Select></Form.Select>
+                      <Form.Select>
+                        <option>{t("travelerInfo.document.type.options.ordinary")}</option>
+                      </Form.Select>
                     </Col>
                     <Col xs={1}>
                       <Button

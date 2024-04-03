@@ -3,7 +3,7 @@
 import { HttpStatusError } from "common-errors";
 import consola from "consola";
 import type { AirportEnity } from "../types/data";
-import type { FlightRouteParams } from "../types/flightroute";
+import type { FlightRouteParams, ResultRoute } from "../types/flightroute";
 
 const backendUrl = process.env.BACKEND_URL ?? "http://localhost";
 const backendPort = process.env.BACKEND_PORT ?? "8080";
@@ -27,11 +27,7 @@ const getFlightRouteResult = async (data: FlightRouteParams) => {
     throw new HttpStatusError(500, errMsg);
   }
 
-  const dataResult: {
-    from: AirportEnity;
-    to: AirportEnity;
-    route: { time: number; distance: number };
-  }[] = await result.json();
+  const dataResult: ResultRoute[] = await result.json();
   consola.info("FlightRouteAPI.getFlightRouteResult", dataResult);
   return dataResult;
 };

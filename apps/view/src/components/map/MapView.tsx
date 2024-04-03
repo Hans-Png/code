@@ -41,7 +41,7 @@ const MapView = () => {
         if (airport) {
           validItineraries.push({
             airport,
-            position: new L.LatLng(airport.latitude, airport.longitude),
+            position: optimizedPosition(new L.LatLng(airport.latitude, airport.longitude)),
           });
         }
       });
@@ -60,7 +60,7 @@ const MapView = () => {
         markerMap.set(to.iata, to);
       });
       const resultMarkerList = Array.from(markerMap.values()).map((airport) => (
-        { airport, position: new L.LatLng(airport.latitude, airport.longitude) }
+        { airport, position: optimizedPosition(new L.LatLng(airport.latitude, airport.longitude)) }
       ));
       setResultMarkers(resultMarkerList);
     } else {
@@ -68,13 +68,23 @@ const MapView = () => {
     }
   }, [itineraries, resultRoutes]);
 
+  // Helpers
+  const optimizedPosition = (pos: L.LatLng) => {
+    const { lat, lng } = pos;
+    if (lng < -180) {
+      return new L.LatLng(lat, lng + 360);
+    } else if (lng > 180) {
+      return new L.LatLng(lat, lng - 360);
+    }
+    return pos;
+  };
+
   return (
     <React.Fragment>
       <div className="leaflet-map-container" style={{ height: "calc(100vh - 56px)" }}>
         <MapContainer
           center={[22.302711, 114.177216]}
           zoom={4}
-          worldCopyJump
           style={{
             height: "100%",
           }}

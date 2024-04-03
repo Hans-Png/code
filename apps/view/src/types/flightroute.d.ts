@@ -1,3 +1,5 @@
+import type { AirportEnity } from "./data";
+
 export interface TravelDocInfo {
   /** Nationality as specified on the travel document */
   nationality: string;
@@ -25,4 +27,13 @@ export interface FlightRouteParams {
   visaInfos: VisaInfo[];
   /** Rule sets to be applied to the calculation. */
   ruleSets?: unknown;
+}
+
+export interface ResultRoute {
+  from: AirportEnity;
+  to: AirportEnity;
+  route: { distance: number; time: number };
+  isTo: boolean;
+  isVisaRequired: boolean;
+  suggestTravelDocs: TravelDocInfo[];
 }

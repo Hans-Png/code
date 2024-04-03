@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import BaseController from "../bases/controller.base";
-import { FlightRouteService } from "../services";
-import type { FlightRouteParams } from "../typedef/flightroute";
+import { DataService, FlightRouteService } from "../services";
+import type { FlightRouteParams, TravelDocInfo } from "../typedef/flightroute";
 import { logger as consola } from "../utils";
 
 class FlightRouteController extends BaseController {
@@ -11,18 +11,75 @@ class FlightRouteController extends BaseController {
     logger.start(`Start to search route from ${requestBody.from} to ${requestBody.to}...`);
 
     try {
+      // Travel Docs and Visa Info
+      const { travelDocs, visaInfos, to: toIata, transitThrough } = requestBody;
+
       // Wait for result
       const routeMap = await FlightRouteService.calculateRoute(requestBody);
 
       // Convert result into Array of Object
-      const routeArray = Array.from(routeMap.entries())
-        .sort((a, b) => a[0] - b[0])
-        .flatMap(([_index, route]) => (
-          route.map((value) => {
-            const { from, to, route: routeData } = value;
-            return { from: from.airport, to: to.airport, route: routeData };
-          })
-        ));
+      const routeArray = await Promise.all(
+        Array.from(routeMap.entries())
+          .sort((a, b) => a[0] - b[0])
+          .flatMap(([_index, route]) => (
+            route.map(async (value) => {
+              const { from, to, route: routeData } = value;
+              const { airport: fromAirport } = from;
+              const { airport: toAirport } = to;
+              const result = {
+                from: fromAirport,
+                to: toAirport,
+                route: routeData,
+                isTo: false,
+                isVisaRequired: false,
+                suggestTravelDocs: [] as TravelDocInfo[],
+              };
+
+              // Write additional data
+              if (toIata === toAirport.iata || transitThrough?.includes(toAirport.iata)) {
+                // Do not check visa requirement if target is specified by the user
+                result.isTo = true;
+              } else if (fromAirport.country.code !== toAirport.country.code) {
+                const visaRequirements = await Promise.all(travelDocs.map(async (doc) => {
+                  if (doc.nationality === toAirport.country.code) {
+                    return { travelDoc: doc, visaInfo: "freedom of movement" };
+                  }
+                  const visaInfo = await DataService.getVisaRequirement(
+                    doc.nationality,
+                    toAirport.country.code,
+                  );
+                  return { travelDoc: doc, visaInfo: visaInfo!.visaRequirementType };
+                }));
+
+                consola.info(visaRequirements);
+
+                const isVisaRequired = visaRequirements.every((visaInfoItem) => (
+                  visaInfoItem.visaInfo === "visa required"
+                ));
+                result.isVisaRequired = isVisaRequired;
+
+                if (!isVisaRequired) {
+                  const ownCountryDoc = visaRequirements.find((visaInfoItem) => (
+                    visaInfoItem.travelDoc.nationality === fromAirport.country.code
+                  ));
+                  if (ownCountryDoc) {
+                    result.suggestTravelDocs.push(ownCountryDoc.travelDoc);
+                  } else {
+                    const noVisaRequiredDocs = visaRequirements.filter((visaInfoItem) => (
+                      visaInfoItem.visaInfo !== "visa required"
+                    ));
+                    result.suggestTravelDocs = [
+                      ...result.suggestTravelDocs,
+                      ...noVisaRequiredDocs.map((visaInfoItem) => visaInfoItem.travelDoc),
+                    ];
+                  }
+                }
+              }
+
+              return result;
+            })
+          )),
+      );
 
       logger.log(
         `The route from ${requestBody.from} to ${requestBody.to} is:`,

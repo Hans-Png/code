@@ -8,10 +8,12 @@
   ],
   "scripts": {
     "build": "tsc",
+    "install:all": "npm run install:server && npm run install:view",
+    "install:server": "cd apps/server && npm intsall",
+    "install:view": "cd apps/view && npm intsall",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:view\"",
     "dev:server": "cd apps/server && npm run dev",
-    "dev:view": "cd apps/view && npm run start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:view": "cd apps/view && npm run start"
   },
   "author": "Png Sing-Han",
   "license": "MIT",

@@ -43,7 +43,18 @@
       "reset": "Reset"
     },
     "result": {
-      "suggestTravelDocsDesc": "Recommend you to use the following travel documents:"
+      "distance": {
+        "title": "Distance",
+        "content": "%s% km"
+      },
+      "time": {
+        "title": "Flight Time",
+        "content": "%s% hours %s% minutes"
+      },
+      "domestic": "Domestic Flight",
+      "intl": "International Flight",
+      "suggestTravelDocsDesc": "Recommend you to use the following travel documents:",
+      "visaRequired": "Target Destination requires visa to enter."
     }
   },
   "zh": {
@@ -87,7 +98,18 @@
       "reset": "重置行程"
     },
     "result": {
-      "suggestTravelDocsDesc": "推薦閣下使用以下旅行證件："
+      "distance": {
+        "title": "距離",
+        "content": "%s%公里"
+      },
+      "time": {
+        "title": "飛行時間",
+        "content": "%s%小時%s%分鐘"
+      },
+      "domestic": "國內航線",
+      "intl": "國際航線",
+      "suggestTravelDocsDesc": "推薦閣下使用以下旅行證件：",
+      "visaRequired": "閣下須辦理簽證方可入境目的地。"
     }
   }
 }

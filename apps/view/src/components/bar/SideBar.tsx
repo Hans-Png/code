@@ -10,14 +10,14 @@ const SideBar = () => {
       <Row>
         <MenuBar />
       </Row>
-      <Row className="overflow-auto mh-45">
-        <Col className="search-container">
+      <Row className="overflow-auto" style={{ maxHeight: "30vh" }}>
+        <Col className="overflow-autosearch-container">
           <SearchBox />
         </Col>
       </Row>
       <hr />
-      <Row className="overflow-auto mh-45">
-        <Col className="result-container">
+      <Row className="overflow-auto" style={{ maxHeight: "50vh" }}>
+        <Col className="overflow-auto result-container">
           <ResultBox />
         </Col>
       </Row>
