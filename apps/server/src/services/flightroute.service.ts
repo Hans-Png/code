@@ -149,9 +149,6 @@ class FlightRouteService extends BaseService {
 
   /**
    * Using A* seacrching algorithm to find the shortest path between two airports.
-   *
-   * The step of implementations
-   * 1. When searching nodes,
    */
   private static async search(
     data: Omit<CalculateStepParams, "index">,
@@ -365,12 +362,12 @@ class FlightRouteService extends BaseService {
     const visaRule = ruleSet?.find((rule) => rule.type);
 
     // Factors
-    const nodeCountFactor = nodeToParentCount / 100; // Normalize
-    const distanceFactor = (200375 - distanceSoFar) / 200375; // Normalize
+    const nodeCountFactor = nodeToParentCount / 2; // Normalize
+    const distanceFactor = distanceSoFar / 20037; // Normalize
 
     // H score
     const heuristicRawScore = this.calculateHeuristic(currentNode, data.destination);
-    const heuristicScore = (heuristicRawScore / 20037) * 2.5; // Normalize
+    const heuristicScore = heuristicRawScore / 20037; // Normalize
 
     // G score
     const tentativeGScore = gScore + heuristicScore;
@@ -383,7 +380,7 @@ class FlightRouteService extends BaseService {
         visaInfos,
         currentCountry.code,
       );
-      visaScore = rawScore / 1500000; // Normalize
+      visaScore = rawScore / 1000; // Normalize
     }
 
     // If there is custom rule for visa
@@ -393,10 +390,10 @@ class FlightRouteService extends BaseService {
 
     // Final Others score
     const ruleScore = visaScore + nodeCountFactor;
-    const finalScore = distanceFactor + (ruleScore * 2.5);
+    const finalScore = distanceFactor + (ruleScore * 50);
 
     // F score
-    const totalCost = tentativeGScore + (0.25 * heuristicScore) + (0.75 * finalScore);
+    const totalCost = tentativeGScore + heuristicScore + finalScore;
 
     return { gScore: tentativeGScore, hScore: heuristicScore, fScore: totalCost };
   }
@@ -448,14 +445,14 @@ class FlightRouteService extends BaseService {
         switch (v.visaRequirementType) {
           // E-visa is nearly same as visa-free
           case "e-visa":
-            currScore = 1000;
+            currScore = 10;
             break;
           // visa on arrival is nearly same as visa-free, but not like E-visa
           case "visa on arrival":
-            currScore = 50000;
+            currScore = 50;
             break;
           case "visa required":
-            currScore = 100000; // Add higher score to let program avoid node that need visa
+            currScore = 1000; // Add higher score to let program avoid node that need visa
             break;
           case "no admission":
           default:
@@ -533,17 +530,18 @@ class FlightRouteService extends BaseService {
 
     const mutate = (individualNode: AirportNode) => {
       const { gScore, hScore, nodeToParentCount, distanceSoFar } = individualNode;
-      const mutateRate = 0.1 - 0.05;
+      const mutateRate = 0.005;
       const gScoreMutated = gScore * (1 + Math.random() * mutateRate);
       const hScoreMutated = hScore * (1 + Math.random() * mutateRate);
-      const nodeToParentMutated = Math.floor(
-        nodeToParentCount * (1 + Math.random() * mutateRate),
-      );
+      // const nodeToParentMutated = Math.floor(
+      //   nodeToParentCount * (1 + Math.random() * mutateRate),
+      // );
       const distanceSoFarMutated = distanceSoFar * (1 + Math.random() * mutateRate);
       return {
         gScore: gScoreMutated,
         hScore: hScoreMutated,
-        nodeToParentCount: nodeToParentMutated,
+        // nodeToParentCount: nodeToParentMutated,
+        nodeToParentCount,
         distanceSoFar: distanceSoFarMutated,
       };
     };
