@@ -288,6 +288,19 @@ class FlightRouteService extends BaseService {
    * In order to cut down the size of population.
    */
   private static async getNeighborNodes(data: CalculateNodeParams) {
+    // Sub Function to call for optimized candiates
+    const callForOptimizedCandidates = async (candidates: AirportNode[]) => {
+      const optimizedCandidates = await this.optimizeNeighborNodes({
+        initialPopulation: candidates,
+        destination: data.destination,
+        travelDocs: data.travelDocs,
+        visaInfos: data.visaInfos,
+        airportNodeCache: data.airportNodeCache,
+        ruleSets: data.ruleSet,
+      });
+      return optimizedCandidates;
+    };
+
     // Get the available flight routes
     const currNeighborRoutes = await this.getFlightRoutesFrom(data.currentNode.airport);
     const destinationRoutes = await this.getFlightRoutesTo(data.destination);
@@ -319,35 +332,19 @@ class FlightRouteService extends BaseService {
       }
     }
 
-    const initialNeighorNodes = await this.optimizeNeighborNodes({
-      initialPopulation,
-      destination: data.destination,
-      travelDocs: data.travelDocs,
-      visaInfos: data.visaInfos,
-      airportNodeCache: data.airportNodeCache,
-      ruleSets: data.ruleSet,
-    });
-
-    // Handle there are potential optimal nodes
+    let finalCandidates: AirportNode[] = [];
     if (optimalPopulation.length) {
-      const optimalNeighborNodes = await this.optimizeNeighborNodes({
-        initialPopulation: optimalPopulation,
-        destination: data.destination,
-        travelDocs: data.travelDocs,
-        visaInfos: data.visaInfos,
-        airportNodeCache: data.airportNodeCache,
-        ruleSets: data.ruleSet,
-      });
-
-      // Considering the flight to final destination might not optimal
-      const optimizedFinalCandidates = [...initialNeighorNodes, ...optimalNeighborNodes]
-        .sort((a, b) => a.fScore - b.fScore);
-
-      return optimizedFinalCandidates;
+      const optimizedCandidatesList = await Promise.all([
+        callForOptimizedCandidates(optimalPopulation),
+        callForOptimizedCandidates(initialPopulation),
+      ]);
+      finalCandidates = [...optimizedCandidatesList[0], ...optimizedCandidatesList[1]];
+    } else {
+      finalCandidates = await callForOptimizedCandidates(initialPopulation);
     }
 
     // Return result
-    return initialNeighorNodes;
+    return finalCandidates;
   }
 
   /**
@@ -357,17 +354,18 @@ class FlightRouteService extends BaseService {
    */
   private static async calculateAStarScore(data: CalculateNodeParams) {
     const { currentNode, travelDocs, visaInfos, ruleSet } = data;
-    const { gScore, nodeToParentCount, distanceSoFar } = currentNode;
+    const { gScore, nodeToParentCount } = currentNode;
     const currentCountry = currentNode.airport.country;
     const visaRule = ruleSet?.find((rule) => rule.type);
 
-    // Factors
-    const nodeCountFactor = nodeToParentCount / 2; // Normalize
-    const distanceFactor = distanceSoFar / 20037; // Normalize
+    // Factor
+    /// Normalize, use raw value here are transit is more painful than direct flight
+    const nodeCountFactor = nodeToParentCount / 1;
 
     // H score
     const heuristicRawScore = this.calculateHeuristic(currentNode, data.destination);
-    const heuristicScore = heuristicRawScore / 20037; // Normalize
+    /// Normalize, but value is larger to prevent mutate value affect optimal path
+    const heuristicScore = (heuristicRawScore / 20037) * 5;
 
     // G score
     const tentativeGScore = gScore + heuristicScore;
@@ -390,7 +388,9 @@ class FlightRouteService extends BaseService {
 
     // Final Others score
     const ruleScore = visaScore + nodeCountFactor;
-    const finalScore = distanceFactor + (ruleScore * 50);
+    /// Make the final score have more weigh than the heuristic score (distance)
+    /// This should prevent program always prefer shorter distance even there is visa requirement.
+    const finalScore = ruleScore * 50;
 
     // F score
     const totalCost = tentativeGScore + heuristicScore + finalScore;
@@ -549,7 +549,7 @@ class FlightRouteService extends BaseService {
     // Destruct property
     const { initialPopulation } = data;
 
-    const populationSize = 75;
+    const populationSize = 100;
     const numGenerations = 10;
     const mutationRate = 0.8;
 

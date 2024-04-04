@@ -51,8 +51,6 @@ class FlightRouteController extends BaseController {
                   return { travelDoc: doc, visaInfo: visaInfo!.visaRequirementType };
                 }));
 
-                consola.info(visaRequirements);
-
                 const isVisaRequired = visaRequirements.every((visaInfoItem) => (
                   visaInfoItem.visaInfo === "visa required"
                 ));

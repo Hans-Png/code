@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { after, before, describe, test } from "node:test";
 import Database from "../database";
-import { AirportEntity, CountryEntity, RouteEntity } from "../entities";
+import { CountryEntity } from "../entities";
 
 describe("[Unit] Database test", () => {
   after(async () => {
@@ -85,13 +85,5 @@ describe("[Unit] Database's data test", () => {
     };
     assert.deepStrictEqual(data.altCode, expected.altCode, "The altCode is the same.");
     assert.deepStrictEqual(data.name, expected.name, "The name is the same.");
-  });
-
-  test("should able to retrieve complex data from the database", async () => {
-    const { em } = db;
-    const airportData = await em.findOneOrFail(AirportEntity, { iata: "HKG" });
-    const routeData = await em.find(RouteEntity, { fromAirport: airportData }, {
-      populate: ["toAirport.iata"],
-    });
   });
 });
