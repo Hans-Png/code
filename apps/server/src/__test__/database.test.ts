@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { after, before, describe, test } from "node:test";
 import Database from "../database";
-import { CountryEntity } from "../entities";
+import { AirportEntity, CountryEntity, VisaPolicyEntity } from "../entities";
 
 describe("[Unit] Database test", () => {
   after(async () => {
@@ -85,5 +85,17 @@ describe("[Unit] Database's data test", () => {
     };
     assert.deepStrictEqual(data.altCode, expected.altCode, "The altCode is the same.");
     assert.deepStrictEqual(data.name, expected.name, "The name is the same.");
+  });
+
+  test("should able to retrieve data from the database", async () => {
+    const { em } = db;
+    const data = await em.findOneOrFail(AirportEntity, { iata: "HKG" });
+    assert.deepStrictEqual(data.iata, "HKG", "The altCode is the same.");
+  });
+
+  test("should able to retrieve data from the database", async () => {
+    const { em } = db;
+    const data = await em.findOneOrFail(VisaPolicyEntity, { fromCountry: "HKG", toCountry: "JPN" });
+    assert.ok(data.visaRequirementType);
   });
 });
