@@ -79,15 +79,15 @@ class DataService extends BaseService {
       const { specialVisaRequirements } = visaRequirement;
       const isSpecialArrangementApplicable = specialVisaRequirements?.some((specialRequirement) => {
         const isHasCertainVisaType = visaInfos.some((visaInfo) => (
-          // Check is nationality fall inside criteria
-          travelDocs.nationality === visaInfo.country
+          // Checking is it a target visa of special requirement
+          specialRequirement.countryCode === visaInfo.country
           // Also check the visa type is fulfilled requirement
           && visaInfo.type === specialRequirement.visaType
         ));
         return isHasCertainVisaType;
       });
       if (isSpecialArrangementApplicable) {
-        return isSpecialArrangementApplicable;
+        return false; // if have target visa, then no visa is required
       }
 
       // Finally, check the result from current visa information

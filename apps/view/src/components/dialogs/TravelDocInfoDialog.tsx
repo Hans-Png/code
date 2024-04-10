@@ -84,7 +84,9 @@ const TravelDocInfoDialog = (
         || localNameUpper.includes(inputUpper));
     });
 
-    return result;
+    return result.filter((country) =>
+      !travelDocsInfo.find((info) => info.nationality === country.code)
+    );
   };
 
   const getCountryName = (code: string) => {

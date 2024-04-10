@@ -249,6 +249,7 @@ class InitializeService extends BaseService {
     };
     const usGreenCardVisaFreeRequirements = await em.find(VisaPolicyEntity, {
       toCountry: { $in: usGreenCardVisaFreeList },
+      visaRequirementType: "visa required",
     });
     for (const requirement of usGreenCardVisaFreeRequirements) {
       const { specialVisaRequirements } = requirement;

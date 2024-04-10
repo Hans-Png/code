@@ -81,7 +81,7 @@ const VisaInfoDialog = (
         || localNameUpper.includes(inputUpper));
     });
 
-    return result;
+    return result.filter((country) => !heldVisaInfos.find((info) => info.country === country.code));
   };
 
   const getCountryName = (code: string) => {
