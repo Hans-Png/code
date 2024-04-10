@@ -38,6 +38,12 @@ and
 
 The url for the frontend view is `http://localhost:3000`
 
+## Issue
+
+Windows defender false alarm over the source code create by react
+
+[My own JavaScript and HTML files detected as Trojan:Script/Wacatac.H!ml](https://www.reddit.com/r/webdev/comments/1bzv5ll/my_own_javascript_and_html_files_detected_as/)
+
 ## Code dependency cite
 
 Mono Repo Template: https://github.com/NiGhTTraX/ts-monorepo
