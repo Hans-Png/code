@@ -14,7 +14,7 @@ class VisaPolicyEntity extends BaseTableEntity {
   @Property({ type: "string" })
   visaRequirementType!: string;
 
-  @Property({ type: "array", nullable: true })
+  @Property({ type: "json", nullable: true })
   specialVisaRequirements?: {
     /** Visa of certain country */
     countryCode: string;

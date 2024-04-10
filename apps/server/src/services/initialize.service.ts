@@ -35,6 +35,7 @@ class InitializeService extends BaseService {
       await this.writeCountryData();
       await this.writeCountryDataPatch(); // Write additional or patched country data
       await this.writeVisaPolicyData();
+      await this.patchVisaPolicyData();
       await this.writeTransitPolicyData();
       await this.writeAirlineRoutesData();
 
@@ -203,6 +204,63 @@ class InitializeService extends BaseService {
     this.#logger.success("Writing visa policy data into database completed.");
   }
 
+  private static async patchVisaPolicyData() {
+    // Prepare database instance
+    const db = Database.getInstance();
+    const { em } = db;
+
+    // Patch for Hong Kong and Macau
+    const cnRequirements = await em.find(VisaPolicyEntity, {
+      fromCountry: { $in: ["HKG", "MAC"] },
+      toCountry: "CHN",
+    });
+    for (const requirement of cnRequirements) {
+      requirement.visaRequirementType = "freedom of movement";
+      requirement.stayDuration = -1;
+      em.persist(requirement);
+    }
+
+    // Patch for US PR holder
+    const usGreenCardVisaFreeList = [
+      "ALB",
+      "ATG",
+      "BHS",
+      "BLZ",
+      "BIH",
+      "CAN",
+      "CRI",
+      "DMA",
+      "DOM",
+      "GEO",
+      "GTM",
+      "HND",
+      "JAM",
+      "XKX",
+      "MEX",
+      "MNE",
+      "NIC",
+      "PAN",
+      "SRB",
+    ];
+    const usGreenCardPriviledge = {
+      countryCode: "USA",
+      visaType: "pr",
+      stayDuration: 30, // Asssuming
+    };
+    const usGreenCardVisaFreeRequirements = await em.find(VisaPolicyEntity, {
+      toCountry: { $in: usGreenCardVisaFreeList },
+    });
+    for (const requirement of usGreenCardVisaFreeRequirements) {
+      const { specialVisaRequirements } = requirement;
+      requirement.specialVisaRequirements = specialVisaRequirements
+        ? [...specialVisaRequirements, usGreenCardPriviledge]
+        : [usGreenCardPriviledge];
+      em.persist(requirement);
+    }
+
+    await em.flush(); // Write
+  }
+
   private static async writeTransitPolicyData() {
     this.#logger.start("Writing transit policy data into database...");
 
@@ -359,10 +417,6 @@ class InitializeService extends BaseService {
     await em.persistAndFlush([...routeCarrierEntities]);
 
     this.#logger.success("Writing airline routes data into database completed.");
-  }
-
-  private static async patchVisaPolicyData() {
-    //
   }
 }
 
