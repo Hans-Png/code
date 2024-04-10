@@ -28,7 +28,8 @@
         "title": "Visa/Entry Permit Information (Optional)",
         "description": "Traveler can choose to list the visa/entry permit information that wished to use during the journey, and can also add multiple records.",
         "options": {
-          "tourist": "Tourist"
+          "tourist": "Tourist",
+          "pr": "PR"
         },
         "add": "Add New Visa/Entry Permit"
       },
@@ -91,7 +92,8 @@
         "title": "簽證/入境許可資訊（可選）",
         "description": "旅客可選擇列出所持有的簽證/入境許可資訊，亦可以加入多筆資料。",
         "options": {
-          "tourist": "訪客"
+          "tourist": "訪客",
+          "pr": "永久居留權"
         },
         "add": "新增簽證/入境許可"
       },

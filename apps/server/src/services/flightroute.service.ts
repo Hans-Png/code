@@ -344,7 +344,7 @@ class FlightRouteService extends BaseService {
     }
 
     // Return result
-    return finalCandidates;
+    return finalCandidates.sort((a, b) => a.fScore - b.fScore);
   }
 
   /**
@@ -353,7 +353,7 @@ class FlightRouteService extends BaseService {
    * applied the rule defined later.
    */
   private static async calculateAStarScore(data: CalculateNodeParams) {
-    const { currentNode, travelDocs, visaInfos, ruleSet } = data;
+    const { currentNode, destination, travelDocs, visaInfos, ruleSet } = data;
     const { gScore, nodeToParentCount } = currentNode;
     const currentCountry = currentNode.airport.country;
     const visaRule = ruleSet?.find((rule) => rule.type);
@@ -370,9 +370,15 @@ class FlightRouteService extends BaseService {
     // G score
     const tentativeGScore = gScore + heuristicScore;
 
-    // Visa Score, Do not need to calculate again if transit via the same country
+    // Visa Score
     let visaScore = 0;
-    if (currentNode.parent && currentNode.parent.airport.country !== currentCountry) {
+    if (
+      currentNode.parent
+      // Do not need to calculate again if transit via the same country
+      // Or if it is the same country as destination
+      && (currentNode.parent.airport.country !== currentCountry
+        || currentCountry === destination.country)
+    ) {
       const rawScore = await this.calculateVisaScore(
         travelDocs,
         visaInfos,
@@ -409,6 +415,35 @@ class FlightRouteService extends BaseService {
     const db = Database.getInstance();
     const { em } = db;
 
+    // Helper function that check visa requirement for current document
+    // if true skip calculate score
+    const checkVisaRequirement = (requirement: VisaPolicyEntity) => {
+      if (
+        travelDocs.some((doc) => doc.nationality === currentCountry)
+        || requirement.visaRequirementType === "visa free"
+        || requirement.visaRequirementType === "freedom of movement"
+      ) {
+        return true;
+      }
+
+      // Handle the case that held other countries visa but also can visa free entry, such as US PR
+      const { specialVisaRequirements } = requirement;
+      const isSpecialApplicable = specialVisaRequirements?.some((special) => {
+        const isHasVisa = visaInfos.some((visa) => (
+          // a foreign visa that can have visa free to current country
+          visa.country === special.countryCode && visa.type === special.visaType
+        ));
+        return isHasVisa;
+      });
+
+      if (isSpecialApplicable) {
+        return true;
+      }
+
+      // Return based on current visa info
+      return visaInfos.some((v) => v.country === currentCountry);
+    };
+
     const visaRequirements = await Promise.all(travelDocs.map(async (doc) => {
       if (doc.nationality === currentCountry) {
         return { visaRequirementType: "freedom of movement" };
@@ -420,7 +455,6 @@ class FlightRouteService extends BaseService {
             fromCountry: doc.nationality,
             toCountry: currentCountry,
           },
-          { populate: ["visaRequirementType"] },
         );
         return visaPolicy;
       } catch (err) {
@@ -430,13 +464,18 @@ class FlightRouteService extends BaseService {
 
     // Generate the final visa score
     let visaScore = 1;
-    if (
-      travelDocs.some((doc) => doc.nationality === currentCountry)
-      || visaRequirements.some((v) => (
-        v.visaRequirementType === "visa free" || v.visaRequirementType === "freedom of movement"
-      ))
-      || visaInfos.some((v) => v.country === currentCountry)
-    ) {
+    const isVisaNotRequired = visaRequirements.some((v) => {
+      switch (v.visaRequirementType) {
+        case "unknown":
+          return false;
+        case "visa free":
+        case "freedom of movement":
+          return true;
+        default:
+          return checkVisaRequirement(v as VisaPolicyEntity);
+      }
+    });
+    if (isVisaNotRequired) {
       visaScore = 1;
     } else {
       const potentialScore: number[] = [];

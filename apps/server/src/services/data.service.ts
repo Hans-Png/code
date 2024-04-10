@@ -1,6 +1,7 @@
 import BaseService from "../bases/service.base";
 import Database from "../database";
 import { AirportEntity, CountryEntity, RouteEntity, VisaPolicyEntity } from "../entities";
+import type { TravelDocInfo, VisaInfo } from "../typedef/flightroute";
 import { logger as consola } from "../utils";
 
 class DataService extends BaseService {
@@ -47,9 +48,53 @@ class DataService extends BaseService {
     const visaRequirement = await em.findOne(VisaPolicyEntity, {
       fromCountry: nationality,
       toCountry: destination,
-    }, { populate: ["visaRequirementType"] });
+    });
 
     return visaRequirement;
+  }
+
+  public static async checkIsRequireVisa(
+    destination: string,
+    travelDocs: TravelDocInfo,
+    visaInfos: VisaInfo[],
+  ) {
+    // Do not check this case as normally has right to entry
+    if (travelDocs.nationality === destination) {
+      return false;
+    }
+
+    // Get all visa requirements data
+    const visaRequirement = await this.getVisaRequirement(travelDocs.nationality, destination);
+
+    // Assume need visa if no data is found
+    if (!visaRequirement) {
+      return !visaInfos.some((visaInfo) => visaInfo.country === destination);
+    }
+
+    const { visaRequirementType } = visaRequirement;
+
+    // Handle visa is required case
+    if (visaRequirementType === "visa required") {
+      // Handle the case that held foreign visa also has visa priviedge
+      const { specialVisaRequirements } = visaRequirement;
+      const isSpecialArrangementApplicable = specialVisaRequirements?.some((specialRequirement) => {
+        const isHasCertainVisaType = visaInfos.some((visaInfo) => (
+          // Check is nationality fall inside criteria
+          travelDocs.nationality === visaInfo.country
+          // Also check the visa type is fulfilled requirement
+          && visaInfo.type === specialRequirement.visaType
+        ));
+        return isHasCertainVisaType;
+      });
+      if (isSpecialArrangementApplicable) {
+        return isSpecialArrangementApplicable;
+      }
+
+      // Finally, check the result from current visa information
+      return !visaInfos.some((visaInfo) => visaInfo.country === destination);
+    }
+
+    return false;
   }
 
   // Updates //

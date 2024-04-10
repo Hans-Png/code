@@ -39,45 +39,59 @@ class FlightRouteController extends BaseController {
               if (toIata === toAirport.iata || transitThrough?.includes(toAirport.iata)) {
                 // Do not check visa requirement if target is specified by the user
                 result.isTo = true;
+                // If it is not domestic flight, still not consider handle Schengen Case
               } else if (fromAirport.country.code !== toAirport.country.code) {
-                const visaRequirements = await Promise.all(travelDocs.map(async (doc) => {
-                  if (doc.nationality === toAirport.country.code) {
-                    return { travelDoc: doc, visaInfo: "freedom of movement" };
-                  }
-                  const visaInfo = await DataService.getVisaRequirement(
-                    doc.nationality,
+                const visaInformations = await Promise.all(travelDocs.map(async (doc) => {
+                  const isVisaRequired = await DataService.checkIsRequireVisa(
                     toAirport.country.code,
+                    doc,
+                    visaInfos,
                   );
-                  return { travelDoc: doc, visaInfo: visaInfo!.visaRequirementType };
+                  return { doc, isVisaRequired };
                 }));
 
-                const isVisaRequired = visaRequirements.every((visaInfoItem) => (
-                  visaInfoItem.visaInfo === "visa required"
-                ));
-                result.isVisaRequired = isVisaRequired;
+                result.isVisaRequired = visaInformations.every((info) => info.isVisaRequired);
+                result.suggestTravelDocs = visaInformations
+                  .filter((info) => !info.isVisaRequired)
+                  .map((info) => info.doc);
 
-                if (!isVisaRequired) {
-                  const ownCountryDoc = visaRequirements.find((visaInfoItem) => (
-                    visaInfoItem.travelDoc.nationality === fromAirport.country.code
-                  ));
-                  if (ownCountryDoc) {
-                    result.suggestTravelDocs.push(ownCountryDoc.travelDoc);
-                  } else {
-                    const noVisaRequiredDocs = visaRequirements.filter((visaInfoItem) => (
-                      visaInfoItem.visaInfo !== "visa required"
-                    ));
-                    result.suggestTravelDocs = [
-                      ...result.suggestTravelDocs,
-                      ...noVisaRequiredDocs.map((visaInfoItem) => visaInfoItem.travelDoc),
-                    ];
-                  }
-                } else {
-                  const visaInformation = visaInfos.find((visaInfoItem) => (
-                    visaInfoItem.country === toAirport.country.code
-                  ));
-                  consola.info(visaInformation);
-                  result.isVisaRequired = Boolean(!visaInformation);
-                }
+                // const visaRequirements = await Promise.all(travelDocs.map(async (doc) => {
+                //   if (doc.nationality === toAirport.country.code) {
+                //     return { travelDoc: doc, visaInfo: "freedom of movement" };
+                //   }
+                //   const visaInfo = await DataService.getVisaRequirement(
+                //     doc.nationality,
+                //     toAirport.country.code,
+                //   );
+                //   return { travelDoc: doc, visaInfo: visaInfo!.visaRequirementType };
+                // }));
+
+                // const isVisaRequired = visaRequirements.every((visaInfoItem) => (
+                //   visaInfoItem.visaInfo === "visa required"
+                // ));
+                // result.isVisaRequired = isVisaRequired;
+
+                // if (!isVisaRequired) {
+                //   const ownCountryDoc = visaRequirements.find((visaInfoItem) => (
+                //     visaInfoItem.travelDoc.nationality === fromAirport.country.code
+                //   ));
+                //   if (ownCountryDoc) {
+                //     result.suggestTravelDocs.push(ownCountryDoc.travelDoc);
+                //   } else {
+                //     const noVisaRequiredDocs = visaRequirements.filter((visaInfoItem) => (
+                //       visaInfoItem.visaInfo !== "visa required"
+                //     ));
+                //     result.suggestTravelDocs = [
+                //       ...result.suggestTravelDocs,
+                //       ...noVisaRequiredDocs.map((visaInfoItem) => visaInfoItem.travelDoc),
+                //     ];
+                //   }
+                // } else {
+                //   const visaInformation = visaInfos.find((visaInfoItem) => (
+                //     visaInfoItem.country === toAirport.country.code
+                //   ));
+                //   result.isVisaRequired = Boolean(!visaInformation);
+                // }
               }
 
               return result;

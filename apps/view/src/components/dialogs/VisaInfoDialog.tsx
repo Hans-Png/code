@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Col, Dropdown, Form, InputGroup, Modal, Row } from "react-bootstrap";
+import { Button, Col, Dropdown, Form, InputGroup, Modal, Row } from "react-bootstrap";
 import { Trash } from "react-bootstrap-icons";
 import { useI18n } from "react-simple-i18n";
 import { AppActionTypes, useAppStore } from "../../hooks/AppContext";
@@ -187,8 +187,11 @@ const VisaInfoDialog = (
                       </InputGroup>
                     </Col>
                     <Col xs={3}>
-                      <Form.Select>
-                        <option>{t("travelerInfo.visa.options.tourist")}</option>
+                      <Form.Select
+                        onChange={(e) => updateHeldVisaInfo(index, "type", e.target.value)}
+                      >
+                        <option value={"tourist"}>{t("travelerInfo.visa.options.tourist")}</option>
+                        <option value={"pr"}>{t("travelerInfo.visa.options.pr")}</option>
                       </Form.Select>
                     </Col>
                     <Col xs={1}>
