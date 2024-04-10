@@ -24,8 +24,12 @@ and
 
 `npm run dev:server` to start the frontend view
 
+The url for the frontend view is `http://localhost:3000`
+
 ## Code dependency cite
 
 Mono Repo Template: https://github.com/NiGhTTraX/ts-monorepo
 
 Fightroute Data: https://github.com/Jonty/airline-route-data
+
+Country Data: https://github.com/stefangabos/world_countries
