@@ -34,13 +34,13 @@ It is required to start both of the components to work, start at project root di
 
 and
 
-`npm run dev:server` to start the frontend view
+`npm run dev:view` to start the frontend view
 
 The url for the frontend view is `http://localhost:3000`
 
 ## Issue
 
-Windows defender false alarm over the source code create by react
+Windows defender might false alarm over the source code create by react
 
 [My own JavaScript and HTML files detected as Trojan:Script/Wacatac.H!ml](https://www.reddit.com/r/webdev/comments/1bzv5ll/my_own_javascript_and_html_files_detected_as/)
 
